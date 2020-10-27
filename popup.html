@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Set Page Color Popup</title>
+    <style>
+    body {
+      overflow: hidden;
+      margin: 0px;
+      padding: 0px;
+      background: white;
+    }
+
+    div:first-child {
+      margin-top: 0px;
+    }
+
+    div {
+      cursor: pointer;
+      padding: 1px 3px;
+      font-family: sans-serif;
+      font-size: 1.5em;
+      width: 100px;
+      margin-top: 1px;
+    }
+
+    div.btn {
+      text-align: center;
+      background: #cccccc;
+    }
+
+    div.btn:hover {
+      background: #aaaaaa;
+    }
+    </style>
+    <script src="popup.js"></script>
+  </head>
+  <body>
+    <div class="btn" id="takeAll">Take All Bells</div>
+    <div class="btn" id="takeRemaining">Take Remaining Bells</div>
+    <div class="btn" id="dropAll">Drop All Bells</div>
+    
+    <div id="console"></div>
+    
+  </body>
+</html>
