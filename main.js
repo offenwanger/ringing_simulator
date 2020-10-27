@@ -40,7 +40,7 @@
 
     const HAND = true;
     const BACK = false;
-    let peelSpeedInHours = 3
+    let peelSpeedInHours = 4
     let changeTime = peelSpeedInHours / 5000 /* hours per row */ * 60 /*minutes*/ * 60 /*seconds*/ * 1000 /* miliseconds */
     let bellInterval = -1;
     let gracePeriod = -1
@@ -57,15 +57,13 @@
         gracePeriod = bellInterval * 2 / 3
         if(e.key == "l"){
             setTimeout(function(){ 
-                let changeEnd = Date.now();
+                changeEnd = Date.now();
                 ringNext() 
             }, 2000);
         }
     
         if(e.key == "t"){
             stand = true
-            place = 0;
-            stroke = HAND;
         }
     }
 
@@ -80,7 +78,7 @@
             } else {
                 // Check if we need to wait
                 let state = getState();
-                let lastBellHasRung = (stroke == HAND && state[place] != HAND) || (stroke == BACK && state[place] != BACK)
+                let lastBellHasRung = (stroke == HAND && state[currentBell] != HAND) || (stroke == BACK && state[currentBell] != BACK)
                 if(!lastBellHasRung) {
                     if(waitTime + gracePeriod > 0) {
                         // We still have grace period. Hesitate.
@@ -109,22 +107,47 @@
     }
 
     function nextChange() {
-        if(stroke == HAND) stroke = BACK;
-        else stroke = HAND;
+        console.log("stroke changing")
+        console.log(stroke)
+        if(stroke == HAND) {
+            stroke = BACK;
+        } else {
+            stroke = HAND;
+        }
         changeEnd = Date.now()
         place = 0;
     }
 
     function getNumberOfBells() {
-        return 8;
+        return $(".bell_img").length;
     }
 
     function getRemainingBells() {
-        return [1, 3, 6, 7, 8]
+        let bells = []
+        $(".bell").each(function (index, bell) {
+            bell = $(bell)
+            if(bell.find(".btn-group").children().length == 2) {
+                // Bell is assigned to a user
+                log("Bell " + bell.attr('id') + " taken.")
+            } else if(bell.find(".btn-group").children().length == 1) {
+                // Bell is unassigned
+                bells.push(parseInt(bell.attr('id')))
+            } else {
+                console.error("Interface changed and this extention is out of sync or something glitched!")
+            }
+        })
+        return bells;
     }
 
     function getState() {
-        return [HAND, HAND, HAND, HAND, HAND, HAND, HAND, HAND];
+        state = []
+        $(".bell").each(function (index, bell) {
+            let bellNumber = parseInt($(bell).attr('id'))
+            let isHand = $(bell).find(".bell_img").attr("src").includes("handstroke")
+            state[bellNumber] = isHand?HAND:BACK;
+        })
+
+        return state;
     }
 
     chrome.runtime.onMessage.addListener(function(request) {
@@ -133,13 +156,15 @@
             case "takeAll": 
                 window.addEventListener('keydown', takeAllBells)
                 break;
-    
-            case "dropAll": 
-                window.removeEventListener('keydown', takeAllBells)
-                break;
 
             case "takeRemaining":
                 window.addEventListener('keydown', takeRemainingBells);
+                break;
+    
+            case "dropAll": 
+                window.removeEventListener('keydown', takeAllBells)
+                window.removeEventListener('keydown', takeRemainingBells)
+                break;
         }
     });
 })();
