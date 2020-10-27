@@ -5,20 +5,20 @@
 'use strict';
 
 document.addEventListener('DOMContentLoaded', function () {
-    document.querySelector('#takeAll').addEventListener('click', () => { 
+    document.querySelector('#ringAll').addEventListener('click', () => { 
         document.querySelector('#console').innerHTML= "Took All Bells"
-        message("takeAll") 
+        message("ringAll") 
     });
 
-    document.querySelector('#takeRemaining').addEventListener('click', () => { 
+    document.querySelector('#ringRemaining').addEventListener('click', () => { 
         document.querySelector('#console').innerHTML= "Taken remaining Bells"
-        message("takeRemaining") 
+        message("ringRemaining") 
     });
 
     
-    document.querySelector('#dropAll').addEventListener('click', () => { 
+    document.querySelector('#ringNone').addEventListener('click', () => { 
         document.querySelector('#console').innerHTML= "Dropped All Bells"
-        message("dropAll") 
+        message("ringNone") 
     });
   
 });

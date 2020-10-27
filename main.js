@@ -5,61 +5,56 @@
         if(DEBUG) console.log(str)
     }
 
-    function ringBell(number) {
-        window.dispatchEvent(new KeyboardEvent('keydown',{'key':"" + number}));
-        log("pressed "+nextBell)
-    
-        window.dispatchEvent(new KeyboardEvent('keyup',{'key':"" + number}));
-        log("released "+nextBell)
-    }
-
-    nextBell = 1
-    stand = false;
-    
-    function ringLoop() {
-        if(stand) {
-            stand = false;
-            return;
-        }
-    
-        ringBell(nextBell);
-    
-        nextBell = (nextBell % 8) + 1
-        setTimeout(function(){ ringLoop() }, 500);
-    }
-    
-    function takeAllBells(e) {
-        if(e.key == "l"){
-            setTimeout(function(){ ringLoop() }, 2000);
-        }
-    
-        if(e.key == "t"){
-            stand = true
-        }
-    }
+    const NO_BELLS = 0;
+    const ALL_BELLS = 1;
+    const REMAINING_BELLS = 2;
+    let mode = NO_BELLS;
 
     const HAND = true;
     const BACK = false;
-    let peelSpeedInHours = 4
-    let changeTime = peelSpeedInHours / 5000 /* hours per row */ * 60 /*minutes*/ * 60 /*seconds*/ * 1000 /* miliseconds */
+
+    let peelSpeedInHours = 4;
+    let changeTime = peelSpeedInHours / 5000 /* hours per row */ * 60 /*minutes*/ * 60 /*seconds*/ * 1000 /* miliseconds */;
     let bellInterval = -1;
-    let gracePeriod = -1
-    let numberOfbells = -1
-    let currentChange = [1, 5, 2, 6, 3, 7, 4, 8]
+    let gracePeriod = -1;
+    
+    let numberOfbells = -1;
+    let stand = false;
+    
     let changeEnd = Date.now();
     let place = 0;
     let stroke = HAND;
-    let iAmRinging = []
-    function takeRemainingBells(e) {
-        iAmRinging = getRemainingBells();
-        numberOfbells = getNumberOfBells();
-        bellInterval = changeTime / numberOfbells;
-        gracePeriod = bellInterval * 2 / 3
+    let iAmRinging = [];
+
+    let change = [1, 5, 2, 6, 3, 7, 4, 8]
+
+    function onKeyDown(e) {
         if(e.key == "l"){
-            setTimeout(function(){ 
-                changeEnd = Date.now();
-                ringNext() 
-            }, 2000);
+            // Take my bells, setup
+            numberOfbells = getNumberOfBells();
+            bellInterval = changeTime / numberOfbells;
+            gracePeriod = bellInterval * 2 / 3
+            stroke = HAND;
+            place = 0;
+
+            if(mode == REMAINING_BELLS) {
+                iAmRinging = getUnassignedBells();
+            }
+
+            if(mode == ALL_BELLS) {
+                iAmRinging = [...Array(numberOfbells + 1).keys()].filter(i => i != 0);
+            }
+
+            if(mode == NO_BELLS) {
+                iAmRinging = [];
+            }
+
+            if(mode != NO_BELLS) {
+                setTimeout(function(){ 
+                    changeEnd = Date.now();
+                    ringNext() 
+                }, 2000);
+            }
         }
     
         if(e.key == "t"){
@@ -67,12 +62,21 @@
         }
     }
 
+    function ringBell(number) {
+        window.dispatchEvent(new KeyboardEvent('keydown',{'key':"" + number}));
+        log("pressed " + number)
+    
+        window.dispatchEvent(new KeyboardEvent('keyup',{'key':"" + number}));
+        log("released " + number)
+    }
+
     function ringNext() {
-        let currentBell = currentChange[place];
+        let currentBell = change[place];
         // pause for one best after the end of the last change, if it's a handstroke, pause for two beats for handstroke gap. 
         let waitTime = (bellInterval * (place + (stroke == HAND?2:1))) - (Date.now() - changeEnd);
         if(waitTime <= 0) {
             if(iAmRinging.includes(currentBell)) {
+
                 // If it's the simulator, go for it.
                 ringBell(currentBell)
             } else {
@@ -122,7 +126,7 @@
         return $(".bell_img").length;
     }
 
-    function getRemainingBells() {
+    function getUnassignedBells() {
         let bells = []
         $(".bell").each(function (index, bell) {
             bell = $(bell)
@@ -153,18 +157,19 @@
     chrome.runtime.onMessage.addListener(function(request) {
         log(request)
         switch(request.type) {
-            case "takeAll": 
-                window.addEventListener('keydown', takeAllBells)
+            case "ringAll": 
+                mode = ALL_BELLS;
                 break;
 
-            case "takeRemaining":
-                window.addEventListener('keydown', takeRemainingBells);
+            case "ringRemaining":
+                mode = REMAINING_BELLS;
                 break;
     
-            case "dropAll": 
-                window.removeEventListener('keydown', takeAllBells)
-                window.removeEventListener('keydown', takeRemainingBells)
+            case "ringNone": 
+                mode = NO_BELLS;
                 break;
         }
     });
+
+    window.addEventListener('keydown', onKeyDown);
 })();
