@@ -14,7 +14,6 @@
     const BACK = false;
 
     let peelSpeedInHours = 4;
-    let changeTime = peelSpeedInHours / 5000 /* hours per row */ * 60 /*minutes*/ * 60 /*seconds*/ * 1000 /* miliseconds */;
     let bellInterval = -1;
     let gracePeriod = -1;
     
@@ -32,6 +31,7 @@
         if(e.key == "l"){
             // Take my bells, setup
             numberOfbells = getNumberOfBells();
+            let changeTime = peelSpeedInHours / 5000 /* hours per row */ * 60 /*minutes*/ * 60 /*seconds*/ * 1000 /* miliseconds */;
             bellInterval = changeTime / numberOfbells;
             gracePeriod = bellInterval * 2 / 3
             stroke = HAND;
@@ -188,11 +188,24 @@
         modeSelector.append($("<option>").attr("value", ALL_BELLS).html("Ring All Bells"));
         modeSelector.append($("<option>").attr("value", NO_BELLS).html("Ring No Bells"));
         modeSelector.on("change", function() {
-            console.log(this.value)
             mode = this.value
         })
         modeSelector.val(mode);
         content.append(modeSelector);
+        content.append($("<br>"))
+
+        let peelSpeedHoursInput = $("<input>").attr("type", "number").attr("min", 0).attr("style", "width:40px");
+        let peelSpeedMinutesInput = $("<input>").attr("type", "number").attr("min", 0).attr("max", 59).attr("style", "width:75px");
+        peelSpeedHoursInput.val(Math.round(peelSpeedInHours))
+        peelSpeedMinutesInput.val(Math.round((peelSpeedInHours * 60) % 60))
+        let onPeelSpeechChange = function () { peelSpeedInHours = parseInt(peelSpeedHoursInput.val()) + (parseInt(peelSpeedMinutesInput.val())/60); };
+        peelSpeedHoursInput.on("change", onPeelSpeechChange)
+        peelSpeedMinutesInput.on("change", onPeelSpeechChange)
+        content.append($("<span>").html("Peel Speed "));
+        content.append(peelSpeedHoursInput);
+        content.append($("<span>").html(" hours "));
+        content.append(peelSpeedMinutesInput);
+        content.append($("<span>").html(" minutes."));
         content.append($("<br>"))
 
         getMethods().then((data) => {
