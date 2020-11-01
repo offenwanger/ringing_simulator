@@ -8,7 +8,7 @@
     const NO_BELLS = 0;
     const ALL_BELLS = 1;
     const REMAINING_BELLS = 2;
-    let mode = NO_BELLS;
+    let mode = REMAINING_BELLS;
 
     const HAND = true;
     const BACK = false;
@@ -63,10 +63,18 @@
     }
 
     function ringBell(number) {
-        window.dispatchEvent(new KeyboardEvent('keydown',{'key':"" + number}));
+        let key = number
+        if(number == 10) {
+            key = 0
+        } else if(number == 11) {
+            key = "-"
+        } else if(number == 12) {
+            key = "="
+        }
+        window.dispatchEvent(new KeyboardEvent('keydown',{'key':"" + key}));
         log("pressed " + number)
     
-        window.dispatchEvent(new KeyboardEvent('keyup',{'key':"" + number}));
+        window.dispatchEvent(new KeyboardEvent('keyup',{'key':"" + key}));
         log("released " + number)
     }
 
@@ -154,22 +162,78 @@
         return state;
     }
 
-    chrome.runtime.onMessage.addListener(function(request) {
-        log(request)
-        switch(request.type) {
-            case "ringAll": 
-                mode = ALL_BELLS;
-                break;
+    function createFAB() {
+        let FAB = $("<div>").attr("style","position: fixed; bottom: 5%; right: 5%");
+        let image = $("<img>").attr("src", chrome.extension.getURL('icon.svg')).attr("width","50px").attr("height","50px");
+        FAB.append(image)
+        return FAB;
+    }
 
-            case "ringRemaining":
-                mode = REMAINING_BELLS;
-                break;
-    
-            case "ringNone": 
-                mode = NO_BELLS;
-                break;
-        }
-    });
+    function createInterface() {
+        let interface = $("<div>").attr("class","dialog").attr("id", "simulator-interface");
+        interface.on("click", function(e) {
+            if($(e.target).attr("id") == interface.attr("id")) {
+                interface.hide()
+            }
+        });
+
+        let content = $("<div>").attr("class","dialog-content");
+        interface.append(content);
+        
+        let header = $("<h3>").html("Ringing Simulator");
+        content.append(header);
+
+        let modeSelector = $("<select>");
+        modeSelector.append($("<option>").attr("value", REMAINING_BELLS).html("Ring Remaining Bells"));
+        modeSelector.append($("<option>").attr("value", ALL_BELLS).html("Ring All Bells"));
+        modeSelector.append($("<option>").attr("value", NO_BELLS).html("Ring No Bells"));
+        modeSelector.on("change", function() {
+            console.log(this.value)
+            mode = this.value
+        })
+        modeSelector.val(mode);
+        content.append(modeSelector);
+        content.append($("<br>"))
+
+        getMethods().then((data) => {
+            console.log(data);
+        }).catch((error) => {
+            console.error(error);
+        });
+
+        let doneButton = $("<button>").html("Done").on("click", function() { interface.hide(); })
+        content.append(doneButton);
+
+        return interface
+    }
+
+    function getMethods() {
+        console.log("making methods request");
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: 'https://vivacious-port.glitch.me/find/methods',
+                type: 'GET',
+                success: function (data) {
+                    resolve(data);
+                },
+                error: function (data) {
+                    reject(data);
+                }
+            });
+        });
+    }
 
     window.addEventListener('keydown', onKeyDown);
+
+    let FAB = createFAB();
+    let interface = createInterface();
+
+    interface.hide();
+    FAB.on("click", function (){
+        interface.show();
+    });
+
+    $("body").append(FAB)
+    $("body").append(interface)
+
 })();
