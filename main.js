@@ -10,6 +10,12 @@
     const REMAINING_BELLS = 2;
     let mode = REMAINING_BELLS;
 
+    const SINGLE_ROW = 0;
+    const INPUT_PLACE_NOTATION = 1;
+    let methodMode = -1
+    let methodRows = []
+    let rowNumber = 0
+
     const HAND = true;
     const BACK = false;
 
@@ -25,7 +31,7 @@
     let stroke = HAND;
     let iAmRinging = [];
 
-    let change = [1, 5, 2, 6, 3, 7, 4, 8]
+    let currentRow = []
 
     function onKeyDown(e) {
         if(e.key == "l"){
@@ -37,15 +43,19 @@
             stroke = HAND;
             place = 0;
 
+            if(methodMode == SINGLE_ROW) {
+                currentRow = methodRows[0];
+            } else if(INPUT_PLACE_NOTATION) {
+                currentRow = methodRows[0];
+                // starting at 0 will result in the first row being rung twice. 
+                rowNumber = 0
+            }
+
             if(mode == REMAINING_BELLS) {
                 iAmRinging = getUnassignedBells();
-            }
-
-            if(mode == ALL_BELLS) {
+            } else if(mode == ALL_BELLS) {
                 iAmRinging = [...Array(numberOfbells + 1).keys()].filter(i => i != 0);
-            }
-
-            if(mode == NO_BELLS) {
+            } else if(mode == NO_BELLS) {
                 iAmRinging = [];
             }
 
@@ -79,7 +89,7 @@
     }
 
     function ringNext() {
-        let currentBell = change[place];
+        let currentBell = currentRow[place];
         // pause for one best after the end of the last change, if it's a handstroke, pause for two beats for handstroke gap. 
         let waitTime = (bellInterval * (place + (stroke == HAND?2:1))) - (Date.now() - changeEnd);
         if(waitTime <= 0) {
@@ -119,8 +129,13 @@
     }
 
     function nextChange() {
-        console.log("stroke changing")
-        console.log(stroke)
+        if(methodMode == SINGLE_ROW) {
+            currentRow = methodRows[0];
+        } else if(INPUT_PLACE_NOTATION) {
+            currentRow = methodRows[Math.min(Math.max(0,rowNumber), methodRows.length - 1)];
+            rowNumber++;
+        }
+        
         if(stroke == HAND) {
             stroke = BACK;
         } else {
@@ -208,11 +223,75 @@
         content.append($("<span>").html(" minutes."));
         content.append($("<br>"))
 
-        getMethods().then((data) => {
-            console.log(data);
-        }).catch((error) => {
-            console.error(error);
-        });
+        let methodSelector = $("<select>");
+        methodSelector.append($("<option>").attr("value", -1).html("&lt;select&gt"));
+        methodSelector.append($("<option>").attr("value", SINGLE_ROW).html("Single Row"));
+        methodSelector.append($("<option>").attr("value", INPUT_PLACE_NOTATION).html("Input Place Notation"));
+        methodSelector.on("change", function() {
+            methodMode = parseInt(this.value);
+            methodInput.empty();
+
+            if(methodMode == INPUT_PLACE_NOTATION) {
+                let rowInput = $("<input>").attr("type", "text")
+                rowInput.on("change", function() {
+                    let result = placeNotationToRowArray(this.value, getNumberOfBells());
+                    if(result.success) {
+                        rowInput.attr("style", "background:green")
+                        methodRows = result.result;
+                    } else {
+                        rowInput.attr("style", "")
+                    }
+                })
+                methodInput.append(rowInput);
+                
+            } else if(methodMode == SINGLE_ROW) {
+                let rowInput = $("<input>").attr("type", "text")
+                rowInput.on("change", function() {
+                    let valid = true;
+                    methodRows = [[]];
+                    let result = this.value.split(",");
+                    for(let i = 0;i<result.length;i++) {
+                        let num = parseInt(result[i]);
+                        if (isNaN(num)) {
+                            if (result[i] == "E") {
+                                methodRows[0].push(11);
+                            } else if (result[i] == "T") {
+                                methodRows[0].push(12);
+                            } else {
+                                console.error("Invalid place notation: " + result[i])
+                                valid = false;
+                            }
+                        } else if(num == 0) {
+                            methodRows[0].push(10)
+                        } else if(num <= 9 && num > 0) {
+                            methodRows[0].push(num)
+                        } else {
+                            console.error("Invalid place notation: " + result[i])
+                            valid = false;
+                        }
+                    }
+                    if(valid) {
+                        rowInput.attr("style", "background:green")
+                    } else {
+                        rowInput.attr("style", "")
+                    }
+                })
+                methodInput.append(rowInput);
+                
+                methodInput.show();
+            } else {
+                methodInput.hide();
+                methodInput.empty();
+            }
+                    
+        })
+        content.append(methodSelector);
+        content.append($("<br>"))
+
+        let methodInput = $("<div>");
+        content.append(methodInput);
+        content.append($("<br>"))
+        content.append($("<br>"))
 
         let doneButton = $("<button>").html("Done").on("click", function() { interface.hide(); })
         content.append(doneButton);

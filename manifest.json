@@ -14,6 +14,7 @@
         "css": [ "main.css" ],
         "js": [ 
           "libs/jquery-3.5.1.min.js",
+          "placeNotationToRowsArray.js",
           "main.js"
         ], 
         "matches": [ 
