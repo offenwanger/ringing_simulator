@@ -123,10 +123,10 @@ let placeNotationToRowArray;
 
             counter++;
         } while (counter < 7000);
-        if(counter >= 7000) {
-            return {"success":false};
+        if (counter >= 7000) {
+            return { "success": false };
         }
 
-        return {"result":rowArray, "success":true};
+        return { "result": rowArray, "success": true };
     }
 })();

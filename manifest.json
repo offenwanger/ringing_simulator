@@ -2,29 +2,27 @@
   "name": "RingingRoom Simulator",
   "description": "Simulate Changes",
   "version": "1.0",
-  "permissions": [
-    "activeTab"
-  ],
+  "permissions": ["activeTab"],
   "page_action": {
-      "default_title": "Ringing room simulator",
-      "default_icon": "icon.png"
+    "default_title": "Ringing room simulator",
+    "default_icon": "icon.png"
   },
   "manifest_version": 2,
-  "content_scripts": [{ 
-        "css": [ "main.css" ],
-        "js": [ 
-          "libs/jquery-3.5.1.min.js",
-          "placeNotationToRowsArray.js",
-          "main.js"
-        ], 
-        "matches": [ 
-            "http://na.ringingroom.com/*", 
-            "https://na.ringingroom.com/*",
-            "http://ringingroom.com/*", 
-            "https://ringingroom.com/*"
-        ] 
-    }],
-    "web_accessible_resources":[
-      "icon.svg"
-    ]
+  "content_scripts": [
+    {
+      "css": ["main.css"],
+      "js": [
+        "libs/jquery-3.5.1.min.js",
+        "placeNotationToRowsArray.js",
+        "main.js"
+      ],
+      "matches": [
+        "http://na.ringingroom.com/*",
+        "https://na.ringingroom.com/*",
+        "http://ringingroom.com/*",
+        "https://ringingroom.com/*"
+      ]
+    }
+  ],
+  "web_accessible_resources": ["icon.svg"]
 }
