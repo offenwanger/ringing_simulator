@@ -120,9 +120,9 @@
                             // Prevent moving on
                             return;
                         }
-                    } else if(ringMode == WAIT_FOR_HUMANS) {
-                        // check again every 10th of a ring
-                        setTimeout(function () { ringNext() }, bellInterval / 10);
+                    } else if(ringMode == WAIT_FOR_HUMANS && !stand) {
+                        // so long as we aren't standing, start polling, otherwise carry on
+                        setTimeout(function () { ringNext() }, bellInterval / 30);
                         // Prevent moving on
                         return;
                     }
