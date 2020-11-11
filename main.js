@@ -26,7 +26,13 @@
     let numberOfbells = -1;
     let stand = false;
 
+
+    const WAIT_FOR_HUMANS = 0;
+    const RING_STEADY = 1;
+    let ringMode = RING_STEADY;
+
     let changeEnd = Date.now();
+    let lastRing = Date.now();
     let place = 0;
     let stroke = HAND;
     let iAmRinging = [];
@@ -91,7 +97,12 @@
     function ringNext() {
         let currentBell = currentRow[place];
         // pause for one best after the end of the last change, if it's a handstroke, pause for two beats for handstroke gap. 
-        let waitTime = (bellInterval * (place + (stroke == HAND ? 2 : 1))) - (Date.now() - changeEnd);
+        let waitTime;
+        if(ringMode == RING_STEADY) {
+            waitTime = (bellInterval * (place + (stroke == HAND ? 2 : 1))) - (Date.now() - changeEnd);
+        }  else if(ringMode == WAIT_FOR_HUMANS) {
+            waitTime = bellInterval - (Date.now() - lastRing);
+        }
         if (waitTime <= 0) {
             if (iAmRinging.includes(currentBell)) {
 
@@ -102,15 +113,23 @@
                 let state = getState();
                 let lastBellHasRung = (stroke == HAND && state[currentBell] != HAND) || (stroke == BACK && state[currentBell] != BACK)
                 if (!lastBellHasRung) {
-                    if (waitTime + gracePeriod > 0) {
-                        // We still have grace period. Hesitate.
-                        setTimeout(function () { ringNext() }, waitTime + gracePeriod / 10);
+                    if(ringMode == RING_STEADY) {
+                        if (waitTime + gracePeriod > 0) {
+                            // We still have grace period. Hesitate.
+                            setTimeout(function () { ringNext() }, waitTime + gracePeriod / 10);
+                            // Prevent moving on
+                            return;
+                        }
+                    } else if(ringMode == WAIT_FOR_HUMANS) {
+                        // check again every 10th of a ring
+                        setTimeout(function () { ringNext() }, bellInterval / 10);
                         // Prevent moving on
                         return;
                     }
                 } // else last bell rang, carry on.
             }
 
+            lastRing = Date.now();
             place++
             if (place >= numberOfbells) {
                 if (stand && stroke == BACK) {
@@ -207,6 +226,16 @@
         })
         modeSelector.val(mode);
         content.append(modeSelector);
+        content.append($("<br>"))
+
+        let ringModeSelector = $("<select>");
+        ringModeSelector.append($("<option>").attr("value", RING_STEADY).html("Ring Steady"));
+        ringModeSelector.append($("<option>").attr("value", WAIT_FOR_HUMANS).html("Wait For Other Bells"));
+        ringModeSelector.on("change", function () {
+            ringMode = this.value
+        })
+        ringModeSelector.val(ringMode);
+        content.append(ringModeSelector);
         content.append($("<br>"))
 
         let peelSpeedHoursInput = $("<input>").attr("type", "number").attr("min", 0).attr("style", "width:40px");
