@@ -69,60 +69,60 @@ let placeNotationToRowArray;
 
     placeNotationToRowArray = function (placeNotionString, numberOfBells) {
         let rowArray = [rounds(numberOfBells)]
+        let fullNotation = []
 
-        let leadNotationString = placeNotionString.split(",")[0]
-        let isSymetric = false;
-        if (leadNotationString[0] == "&") {
-            leadNotationString = leadNotationString.substring(1);
-            isSymetric = true;
-        }
-
-        let leadNotation = []
-        let currentNotation = "";
-        for (let i = 0; i < leadNotationString.length; i++) {
-            if (leadNotationString[i] == "-" || leadNotationString[i] == ".") {
-                if (currentNotation.length > 0) {
-                    leadNotation.push(currentNotation)
-                }
-                currentNotation = "";
-
-                if (leadNotationString[i] == "-") {
-                    leadNotation.push("-")
-                }
-            } else {
-                currentNotation = currentNotation + leadNotationString[i]
+        for(let i = 0;i<placeNotionString.split(",").length;i++) {
+            let leadNotationString = placeNotionString.split(",")[i]
+            let isSymetric = false;
+            if (leadNotationString[0] == "&") {
+                leadNotationString = leadNotationString.substring(1);
+                isSymetric = true;
             }
-        }
-        leadNotation.push(currentNotation)
 
-        if (isSymetric) {
-            // reverse through the lead, not including the last change notation
-            for (let i = leadNotation.length - 2; i >= 0; i--) {
-                leadNotation.push(leadNotation[i])
+            let leadNotation = []
+            let currentNotation = "";
+            for (let i = 0; i < leadNotationString.length; i++) {
+                if (leadNotationString[i] == "-" || leadNotationString[i] == ".") {
+                    if (currentNotation.length > 0) {
+                        leadNotation.push(currentNotation)
+                    }
+                    currentNotation = "";
+
+                    if (leadNotationString[i] == "-") {
+                        leadNotation.push("-")
+                    }
+                } else {
+                    currentNotation = currentNotation + leadNotationString[i]
+                }
             }
-        }
+            leadNotation.push(currentNotation)
 
-        let leadEndNotation = placeNotionString.split(",")[1]
+            if (isSymetric) {
+                // reverse through the lead, not including the last change notation
+                for (let i = leadNotation.length - 2; i >= 0; i--) {
+                    leadNotation.push(leadNotation[i])
+                }
+            }
+
+            fullNotation = fullNotation.concat(leadNotation)
+        }
 
         let counter = 0
         do {
-            for (let i = 0; i < leadNotation.length; i++) {
+            for (let i = 0; i < fullNotation.length; i++) {
                 let previousRow = rowArray[rowArray.length - 1]
-                let nextRow = generateNextRow(previousRow, leadNotation[i]);
+                let nextRow = generateNextRow(previousRow, fullNotation[i]);
                 rowArray.push(nextRow)
             }
 
-            let previousRow = rowArray[rowArray.length - 1]
-            let nextRow = generateNextRow(previousRow, leadEndNotation);
-            rowArray.push(nextRow)
-
-            if (nextRow.join("") == rowArray[0].join("")) {
+            if (rowArray[rowArray.length - 1].join("") == rowArray[0].join("")) {
                 // back at the start, break the loop
                 break;
             }
 
             counter++;
         } while (counter < 7000);
+    
         if (counter >= 7000) {
             return { "success": false };
         }
