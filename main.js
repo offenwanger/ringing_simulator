@@ -24,6 +24,7 @@
     let gracePeriod = -1;
 
     let numberOfbells = -1;
+    let going = false;
     let stand = false;
 
 
@@ -48,6 +49,7 @@
             gracePeriod = bellInterval * 2 / 3
             stroke = HAND;
             place = 0;
+            going = false;
 
             if (methodMode == SINGLE_ROW) {
                 currentRow = methodRows[0];
@@ -73,8 +75,16 @@
             }
         }
 
+        if(e.key == "g") {
+            going = true;
+        }
+
+        if(e.key == "h") {
+            going = false;
+        }
+
         if (e.key == "t") {
-            stand = true
+            stand = true;
         }
     }
 
@@ -148,10 +158,22 @@
     }
 
     function nextChange() {
+        if(rowNumber >= methodRows.length) {
+            // remember that the last row is the first row, 
+            // so if just rang the last row, don't ring that row again 
+            rowNumber = 1;
+        }
+
         if (methodMode == SINGLE_ROW) {
             currentRow = methodRows[0];
         } else if (INPUT_PLACE_NOTATION) {
-            currentRow = methodRows[Math.min(Math.max(0, rowNumber), methodRows.length - 1)];
+            if(!going || (rowNumber == 1 && stroke == HAND)) {
+                // if not going, reset to the first row
+                // or if we are going, don't go to the first row until we've just finished a backstroke.
+                rowNumber = 0;
+            } 
+            if(rowNumber < 0 || rowNumber >= methodRows.length) console.error("Impossible state! rowNumber="+rowNumber)
+            currentRow = methodRows[rowNumber];
             rowNumber++;
         }
 
