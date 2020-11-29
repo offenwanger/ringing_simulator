@@ -1,4 +1,4 @@
-let simluatorInterface = (function () {
+let simulatorInterface = (function () {
     let c = simulatorConstants;
     const DEBUG = true
     function log(str) {
@@ -8,7 +8,7 @@ let simluatorInterface = (function () {
     let takeBellsMode = c.REMAINING_BELLS;
     let ringMode = c.WAIT_FOR_HUMANS;
 
-    let methodRows = []
+    let placeNotationCallback;
 
     let peelSpeedInHours = 4;
     
@@ -30,18 +30,6 @@ let simluatorInterface = (function () {
         let image = $("<img>").attr("src", chrome.extension.getURL('icon.svg')).attr("width", "50px").attr("height", "50px");
         FAB.append(image)
         return FAB;
-    }
-
-    function getNumberOfBells() {
-        return $(".bell_img").length;
-    }
-
-    function getMethodRows() {
-        if(!methodRows || methodRows.length == 0) {
-            return getRoundsRowArray(getNumberOfBells);
-        } else {
-            return methodRows;
-        }
     }
 
     function createInterface() {
@@ -92,12 +80,8 @@ let simluatorInterface = (function () {
             .attr("id","place-notation-input")
             .attr("placeholder","place notation");
         rowInput.on("change", function () {
-            let result = placeNotationToRowArray(this.value, getNumberOfBells());
-            if (result.success) {
-                rowInput.attr("style", "background:green")
-                methodRows = result.result;
-            } else {
-                rowInput.attr("style", "")
+            if(placeNotationCallback) {
+                placeNotationCallback(this.value);
             }
         })
         interface.append(rowInput);
@@ -108,10 +92,18 @@ let simluatorInterface = (function () {
         return interface
     }
 
+    function setNotationValid(valid) {
+        if(valid) {
+            $("#place-notation-input").addClass("valid")
+        } else {
+            $("#place-notation-input").removeClass("valid")
+        }
+    }
+
     return {
         buildInterface:buildInterface,
-        getNumberOfBells:getNumberOfBells,
-        getMethodRows:getMethodRows,
+        setPlaceNotationChangeCallback:(callback) => placeNotationCallback = callback,
+        setNotationValid:setNotationValid,
         getRingMode:()=>ringMode,
         getTakeBellsMode:()=>takeBellsMode,
         getPeelSpeed:()=>peelSpeedInHours,

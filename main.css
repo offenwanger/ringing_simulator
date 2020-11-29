@@ -20,3 +20,7 @@
 #place-notation-input {
   width: 100%;
 }
+
+.valid {
+  background-color: green;
+}

@@ -22,32 +22,33 @@
     let stroke = c.HAND;
     let iAmRinging = [];
 
+    let methodRows = []
     let currentRow = []
 
     function onKeyDown(e) {
         if (e.key == "l") {
             // Take my bells, setup
-            numberOfbells = simluatorInterface.getNumberOfBells();
-            let changeTime = simluatorInterface.getPeelSpeed() / 5000 /* hours per row */ * 60 /*minutes*/ * 60 /*seconds*/ * 1000 /* miliseconds */;
+            numberOfbells = getNumberOfBells();
+            let changeTime = simulatorInterface.getPeelSpeed() / 5000 /* hours per row */ * 60 /*minutes*/ * 60 /*seconds*/ * 1000 /* miliseconds */;
             bellInterval = changeTime / numberOfbells;
             gracePeriod = bellInterval * 2 / 3
             stroke = c.HAND;
             place = 0;
             going = false;
 
-            currentRow = simluatorInterface.getMethodRows()[0];
+            currentRow = methodRows[0];
             // starting at 0 will result in the first row being rung twice. 
             rowNumber = 0
             
-            if (simluatorInterface.getTakeBellsMode() == c.REMAINING_BELLS) {
+            if (simulatorInterface.getTakeBellsMode() == c.REMAINING_BELLS) {
                 iAmRinging = getUnassignedBells();
-            } else if (simluatorInterface.getTakeBellsMode() == c.ALL_BELLS) {
+            } else if (simulatorInterface.getTakeBellsMode() == c.ALL_BELLS) {
                 iAmRinging = [...Array(numberOfbells + 1).keys()].filter(i => i != 0);
-            } else if (simluatorInterface.getTakeBellsMode() == c.NO_BELLS) {
+            } else if (simulatorInterface.getTakeBellsMode() == c.NO_BELLS) {
                 iAmRinging = [];
             }
 
-            if (simluatorInterface.getTakeBellsMode() != c.NO_BELLS) {
+            if (simulatorInterface.getTakeBellsMode() != c.NO_BELLS) {
                 setTimeout(function () {
                     changeEnd = Date.now();
                     ringNext()
@@ -88,9 +89,9 @@
         let currentBell = currentRow[place];
         // pause for one best after the end of the last change, if it's a c.HANDstroke, pause for two beats for c.HANDstroke gap. 
         let waitTime;
-        if(simluatorInterface.getRingMode() == c.RING_STEADY) {
+        if(simulatorInterface.getRingMode() == c.RING_STEADY) {
             waitTime = (bellInterval * (place + (stroke == c.HAND ? 2 : 1))) - (Date.now() - changeEnd);
-        }  else if(simluatorInterface.getRingMode() == c.WAIT_FOR_HUMANS) {
+        }  else if(simulatorInterface.getRingMode() == c.WAIT_FOR_HUMANS) {
             waitTime = bellInterval - (Date.now() - lastRing);
         }
         if (waitTime <= 0) {
@@ -103,14 +104,14 @@
                 let state = getState();
                 let lastBellHasRung = (stroke == c.HAND && state[currentBell] != c.HAND) || (stroke == c.BACK && state[currentBell] != c.BACK)
                 if (!lastBellHasRung) {
-                    if(simluatorInterface.getRingMode() == c.RING_STEADY) {
+                    if(simulatorInterface.getRingMode() == c.RING_STEADY) {
                         if (waitTime + gracePeriod > 0) {
                             // We still have grace period. Hesitate.
                             setTimeout(function () { ringNext() }, waitTime + gracePeriod / 10);
                             // Prevent moving on
                             return;
                         }
-                    } else if(simluatorInterface.getRingMode() == c.WAIT_FOR_HUMANS && !stand) {
+                    } else if(simulatorInterface.getRingMode() == c.WAIT_FOR_HUMANS && !stand) {
                         // so long as we aren't standing, start polling, otherwise carry on
                         setTimeout(function () { ringNext() }, bellInterval / 30);
                         // Prevent moving on
@@ -138,7 +139,7 @@
     }
 
     function nextChange() {
-        if(rowNumber >= simluatorInterface.getMethodRows().length) {
+        if(rowNumber >= methodRows.length) {
             // remember that the last row is the first row, 
             // so if just rang the last row, don't ring that row again 
             rowNumber = 1;
@@ -149,8 +150,8 @@
             // or if we are going, don't go to the first row until we've just finished a backstroke.
             rowNumber = 0;
         } 
-        if(rowNumber < 0 || rowNumber >= simluatorInterface.getMethodRows().length) console.error("Impossible state! rowNumber="+rowNumber)
-        currentRow = simluatorInterface.getMethodRows()[rowNumber];
+        if(rowNumber < 0 || rowNumber >= methodRows.length) console.error("Impossible state! rowNumber="+rowNumber)
+        currentRow = methodRows[rowNumber];
         rowNumber++;
 
         if (stroke == c.HAND) {
@@ -178,6 +179,10 @@
         })
         return bells;
     }
+    
+    function getNumberOfBells() {
+        return $(".bell_img").length;
+    }
 
     function getState() {
         state = []
@@ -190,22 +195,15 @@
         return state;
     }
 
-    function getMethods() {
-        console.log("making methods request");
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                url: 'https://vivacious-port.glitch.me/find/methods',
-                type: 'GET',
-                success: function (data) {
-                    resolve(data);
-                },
-                error: function (data) {
-                    reject(data);
-                }
-            });
-        });
-    }
-
     window.addEventListener('keydown', onKeyDown);
-    simluatorInterface.buildInterface();
+    simulatorInterface.buildInterface();
+    simulatorInterface.setPlaceNotationChangeCallback((currentNotation) => {
+        let result = placeNotationToRowArray(currentNotation, getNumberOfBells());
+        if (result.success) {
+            simulatorInterface.setNotationValid(true);
+            methodRows = result.result;
+        } else {
+            simulatorInterface.setNotationValid(false);
+        }
+    })
 })();
