@@ -147,7 +147,7 @@
             // If we're on row 0, just finished a back, either up_down_go, or have had the go command, off we go
             rowNumber = 1;
             // Note: this case not strictly nessisary, but makes for easier to follow flow
-        } else if(rowNumber >= methodRows.length) {
+        } else if(rowNumber >= methodRows.length - 1) {
             // if we've reached the end of the method, check what to do:
             if(goMode == c.GO_THATS_ALL) {
                 // we're still going because that would have been caught above
