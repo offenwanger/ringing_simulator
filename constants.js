@@ -4,7 +4,7 @@
         REMAINING_BELLS:2,
     
         UP_DOWN_GO:0,
-        GO_THATS_ALL:1,
+        FOLLOW_COMMANDS:1,
     
         HAND:true,
         BACK:false,

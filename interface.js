@@ -54,8 +54,8 @@ let simulatorInterface = (function () {
         interface.append($("<br>"))
 
         let goModeSelector = $("<select>");
-        goModeSelector.append($("<option>").attr("value", c.UP_DOWN_GO).html("Up, Down, Go"));
-        goModeSelector.append($("<option>").attr("value", c.GO_THATS_ALL).html("Wait for go / that's all"));
+        goModeSelector.append($("<option>").attr("value", c.UP_DOWN_GO).html("Up, down, go"));
+        goModeSelector.append($("<option>").attr("value", c.FOLLOW_COMMANDS).html("Wait for go / that's all"));
         goModeSelector.on("change", function () {
             goMode = this.value
         })
