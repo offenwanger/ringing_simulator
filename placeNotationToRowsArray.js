@@ -1,6 +1,7 @@
 // Place notation from
 // http://methods.ringing.org/
 let placeNotationToRowArray;
+let getRoundsRowArray;
 (function () {
     function generateNextRow(previousRow, notation) {
         let nextRow = []
@@ -66,6 +67,7 @@ let placeNotationToRowArray;
         }
         return rowArr;
     }
+    getRoundsRowArray = rounds;
 
     placeNotationToRowArray = function (placeNotionString, numberOfBells) {
         let rowArray = [rounds(numberOfBells)]

@@ -35,14 +35,10 @@
             place = 0;
             going = false;
 
-            if (simluatorInterface.getMethodMode() == c.SINGLE_ROW) {
-                currentRow = simluatorInterface.getMethodRows()[0];
-            } else if (c.INPUT_PLACE_NOTATION) {
-                currentRow = simluatorInterface.getMethodRows()[0];
-                // starting at 0 will result in the first row being rung twice. 
-                rowNumber = 0
-            }
-
+            currentRow = simluatorInterface.getMethodRows()[0];
+            // starting at 0 will result in the first row being rung twice. 
+            rowNumber = 0
+            
             if (simluatorInterface.getTakeBellsMode() == c.REMAINING_BELLS) {
                 iAmRinging = getUnassignedBells();
             } else if (simluatorInterface.getTakeBellsMode() == c.ALL_BELLS) {
@@ -148,18 +144,14 @@
             rowNumber = 1;
         }
 
-        if (simluatorInterface.getMethodMode() == c.SINGLE_ROW) {
-            currentRow = simluatorInterface.getMethodRows()[0];
-        } else if (c.INPUT_PLACE_NOTATION) {
-            if(!going || (rowNumber == 1 && stroke == c.HAND)) {
-                // if not going, reset to the first row
-                // or if we are going, don't go to the first row until we've just finished a backstroke.
-                rowNumber = 0;
-            } 
-            if(rowNumber < 0 || rowNumber >= simluatorInterface.getMethodRows().length) console.error("Impossible state! rowNumber="+rowNumber)
-            currentRow = simluatorInterface.getMethodRows()[rowNumber];
-            rowNumber++;
-        }
+        if(!going || (rowNumber == 1 && stroke == c.HAND)) {
+            // if not going, reset to the first row
+            // or if we are going, don't go to the first row until we've just finished a backstroke.
+            rowNumber = 0;
+        } 
+        if(rowNumber < 0 || rowNumber >= simluatorInterface.getMethodRows().length) console.error("Impossible state! rowNumber="+rowNumber)
+        currentRow = simluatorInterface.getMethodRows()[rowNumber];
+        rowNumber++;
 
         if (stroke == c.HAND) {
             stroke = c.BACK;

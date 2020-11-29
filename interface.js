@@ -6,8 +6,7 @@ let simluatorInterface = (function () {
     }
 
     let takeBellsMode = c.REMAINING_BELLS;
-    let ringMode = c.RING_STEADY;
-    let methodMode = -1
+    let ringMode = c.WAIT_FOR_HUMANS;
 
     let methodRows = []
 
@@ -37,19 +36,19 @@ let simluatorInterface = (function () {
         return $(".bell_img").length;
     }
 
-    function createInterface() {
-        let interface = $("<div>").attr("class", "dialog").attr("id", "simulator-interface");
-        interface.on("click", function (e) {
-            if ($(e.target).attr("id") == interface.attr("id")) {
-                interface.hide()
-            }
-        });
+    function getMethodRows() {
+        if(!methodRows || methodRows.length == 0) {
+            return getRoundsRowArray(getNumberOfBells);
+        } else {
+            return methodRows;
+        }
+    }
 
-        let content = $("<div>").attr("class", "dialog-content");
-        interface.append(content);
+    function createInterface() {
+        let interface = $("<div>").attr("class", "dialog");
 
         let header = $("<h3>").html("Ringing Simulator");
-        content.append(header);
+        interface.append(header);
 
         let modeSelector = $("<select>");
         modeSelector.append($("<option>").attr("value", c.REMAINING_BELLS).html("Ring Remaining Bells"));
@@ -59,8 +58,8 @@ let simluatorInterface = (function () {
             takeBellsMode = this.value
         })
         modeSelector.val(takeBellsMode);
-        content.append(modeSelector);
-        content.append($("<br>"))
+        interface.append(modeSelector);
+        interface.append($("<br>"))
 
         let ringModeSelector = $("<select>");
         ringModeSelector.append($("<option>").attr("value", c.RING_STEADY).html("Ring Steady"));
@@ -69,8 +68,9 @@ let simluatorInterface = (function () {
             ringMode = this.value
         })
         ringModeSelector.val(ringMode);
-        content.append(ringModeSelector);
-        content.append($("<br>"))
+        interface.append(ringModeSelector);
+        interface.append($("<br>"))
+        interface.append($("<br>"))
 
         let peelSpeedHoursInput = $("<input>").attr("type", "number").attr("min", 0).attr("style", "width:40px");
         let peelSpeedMinutesInput = $("<input>").attr("type", "number").attr("min", 0).attr("max", 59).attr("style", "width:75px");
@@ -79,85 +79,31 @@ let simluatorInterface = (function () {
         let onPeelSpeechChange = function () { peelSpeedInHours = parseInt(peelSpeedHoursInput.val()) + (parseInt(peelSpeedMinutesInput.val()) / 60); };
         peelSpeedHoursInput.on("change", onPeelSpeechChange)
         peelSpeedMinutesInput.on("change", onPeelSpeechChange)
-        content.append($("<span>").html("Peel Speed "));
-        content.append(peelSpeedHoursInput);
-        content.append($("<span>").html(" hours "));
-        content.append(peelSpeedMinutesInput);
-        content.append($("<span>").html(" minutes."));
-        content.append($("<br>"))
+        interface.append($("<span>").html("Peel Speed "));
+        interface.append(peelSpeedHoursInput);
+        interface.append($("<span>").html(" hours "));
+        interface.append(peelSpeedMinutesInput);
+        interface.append($("<span>").html(" minutes."));
+        interface.append($("<br>"))
+        interface.append($("<br>"))
 
-        let methodSelector = $("<select>");
-        methodSelector.append($("<option>").attr("value", -1).html("&lt;select&gt"));
-        methodSelector.append($("<option>").attr("value", c.SINGLE_ROW).html("Single Row"));
-        methodSelector.append($("<option>").attr("value", c.INPUT_PLACE_NOTATION).html("Input Place Notation"));
-        methodSelector.on("change", function () {
-            methodMode = parseInt(this.value);
-            methodInput.empty();
-
-            if (methodMode == c.INPUT_PLACE_NOTATION) {
-                let rowInput = $("<input>").attr("type", "text")
-                rowInput.on("change", function () {
-                    let result = placeNotationToRowArray(this.value, getNumberOfBells());
-                    if (result.success) {
-                        rowInput.attr("style", "c.BACKground:green")
-                        methodRows = result.result;
-                    } else {
-                        rowInput.attr("style", "")
-                    }
-                })
-                methodInput.append(rowInput);
-
-            } else if (methodMode == c.SINGLE_ROW) {
-                let rowInput = $("<input>").attr("type", "text")
-                rowInput.on("change", function () {
-                    let valid = true;
-                    methodRows = [[]];
-                    let result = this.value.split(",");
-                    for (let i = 0; i < result.length; i++) {
-                        let num = parseInt(result[i]);
-                        if (isNaN(num)) {
-                            if (result[i] == "E") {
-                                methodRows[0].push(11);
-                            } else if (result[i] == "T") {
-                                methodRows[0].push(12);
-                            } else {
-                                console.error("Invalid place notation: " + result[i])
-                                valid = false;
-                            }
-                        } else if (num == 0) {
-                            methodRows[0].push(10)
-                        } else if (num <= 9 && num > 0) {
-                            methodRows[0].push(num)
-                        } else {
-                            console.error("Invalid place notation: " + result[i])
-                            valid = false;
-                        }
-                    }
-                    if (valid) {
-                        rowInput.attr("style", "c.BACKground:green")
-                    } else {
-                        rowInput.attr("style", "")
-                    }
-                })
-                methodInput.append(rowInput);
-
-                methodInput.show();
+        let rowInput = $("<input>")
+            .attr("type", "text")
+            .attr("id","place-notation-input")
+            .attr("placeholder","place notation");
+        rowInput.on("change", function () {
+            let result = placeNotationToRowArray(this.value, getNumberOfBells());
+            if (result.success) {
+                rowInput.attr("style", "background:green")
+                methodRows = result.result;
             } else {
-                methodInput.hide();
-                methodInput.empty();
+                rowInput.attr("style", "")
             }
-
         })
-        content.append(methodSelector);
-        content.append($("<br>"))
+        interface.append(rowInput);
 
-        let methodInput = $("<div>");
-        content.append(methodInput);
-        content.append($("<br>"))
-        content.append($("<br>"))
-
-        let doneButton = $("<button>").html("Done").on("click", function () { interface.hide(); })
-        content.append(doneButton);
+        let exitButton = $("<button>").html("X").attr("class", "exit-button").on("click", function () { interface.hide(); })
+        interface.append(exitButton);
 
         return interface
     }
@@ -165,10 +111,9 @@ let simluatorInterface = (function () {
     return {
         buildInterface:buildInterface,
         getNumberOfBells:getNumberOfBells,
+        getMethodRows:getMethodRows,
         getRingMode:()=>ringMode,
         getTakeBellsMode:()=>takeBellsMode,
-        getMethodMode:()=>methodMode,
-        getMethodRows:()=>methodRows,
         getPeelSpeed:()=>peelSpeedInHours,
     }
 })();
