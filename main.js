@@ -25,35 +25,31 @@
     let methodRows = []
     let currentRow = []
 
+    let ringLoop;
+
     function onKeyDown(e) {
-        if (e.key == "l") {
-            // Take my bells, setup
-            numberOfbells = getNumberOfBells();
-            let changeTime = simulatorInterface.getPeelSpeed() / 5000 /* hours per row */ * 60 /*minutes*/ * 60 /*seconds*/ * 1000 /* miliseconds */;
-            bellInterval = changeTime / numberOfbells;
-            gracePeriod = bellInterval * 2 / 3
-            stroke = c.HAND;
-            place = 0;
-            going = false;
+        if (e.key == "l") {            
+            if(simulatorInterface.isActive()) {
+                // Take my bells, setup
+                numberOfbells = getNumberOfBells();
+                let changeTime = simulatorInterface.getPeelSpeed() / 5000 /* hours per row */ * 60 /*minutes*/ * 60 /*seconds*/ * 1000 /* miliseconds */;
+                bellInterval = changeTime / numberOfbells;
+                gracePeriod = bellInterval * 2 / 3
+                stroke = c.HAND;
+                place = 0;
+                going = false;
+                stand = false;
 
-            currentRow = methodRows[0];
-            // starting at 0 will result in the first row being rung twice. 
-            rowNumber = 0
-            
-            if (simulatorInterface.getTakeBellsMode() == c.REMAINING_BELLS) {
+                currentRow = methodRows[0];
+                // starting at 0 will result in the first row being rung twice. 
+                rowNumber = 0
+
                 iAmRinging = getUnassignedBells();
-            } else if (simulatorInterface.getTakeBellsMode() == c.ALL_BELLS) {
-                iAmRinging = [...Array(numberOfbells + 1).keys()].filter(i => i != 0);
-            } else if (simulatorInterface.getTakeBellsMode() == c.NO_BELLS) {
-                iAmRinging = [];
-            }
-
-            if (simulatorInterface.getTakeBellsMode() != c.NO_BELLS) {
-                setTimeout(function () {
+                ringLoop = setTimeout(function () {
                     changeEnd = Date.now();
                     ringNext()
                 }, 2000);
-            }
+            } 
         }
 
         if(e.key == "g") {
@@ -107,13 +103,13 @@
                     if(simulatorInterface.getRingMode() == c.RING_STEADY) {
                         if (waitTime + gracePeriod > 0) {
                             // We still have grace period. Hesitate.
-                            setTimeout(function () { ringNext() }, waitTime + gracePeriod / 10);
+                            ringLoop = setTimeout(function () { ringNext() }, waitTime + gracePeriod / 10);
                             // Prevent moving on
                             return;
                         }
                     } else if(simulatorInterface.getRingMode() == c.WAIT_FOR_HUMANS && !stand) {
                         // so long as we aren't standing, start polling, otherwise carry on
-                        setTimeout(function () { ringNext() }, bellInterval / 30);
+                        ringLoop = setTimeout(function () { ringNext() }, bellInterval / 30);
                         // Prevent moving on
                         return;
                     }
@@ -134,7 +130,7 @@
             // Run the loop again to trigger the appropriate wait.
             ringNext();
         } else {
-            setTimeout(function () { ringNext() }, waitTime);
+            ringLoop = setTimeout(function () { ringNext() }, waitTime);
         }
     }
 
@@ -205,5 +201,11 @@
         } else {
             simulatorInterface.setNotationValid(false);
         }
-    })
+    });
+
+    simulatorInterface.setStopCallback(() => {
+        stand = true;
+        clearTimeout(ringLoop);
+        ringLoop = null;
+    });
 })();

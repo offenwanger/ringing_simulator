@@ -5,10 +5,10 @@ let simulatorInterface = (function () {
         if (DEBUG) console.log(str)
     }
 
-    let takeBellsMode = c.REMAINING_BELLS;
     let ringMode = c.WAIT_FOR_HUMANS;
 
     let placeNotationCallback;
+    let stopCallback;
 
     let peelSpeedInHours = 4;
     
@@ -32,22 +32,15 @@ let simulatorInterface = (function () {
         return FAB;
     }
 
+    function isActive() {
+        return $("#simulator-interface").is(":visible");
+    }
+
     function createInterface() {
-        let interface = $("<div>").attr("class", "dialog");
+        let interface = $("<div>").attr("class", "dialog").attr("id","simulator-interface");
 
         let header = $("<h3>").html("Ringing Simulator");
         interface.append(header);
-
-        let modeSelector = $("<select>");
-        modeSelector.append($("<option>").attr("value", c.REMAINING_BELLS).html("Ring Remaining Bells"));
-        modeSelector.append($("<option>").attr("value", c.ALL_BELLS).html("Ring All Bells"));
-        modeSelector.append($("<option>").attr("value", c.NO_BELLS).html("Ring No Bells"));
-        modeSelector.on("change", function () {
-            takeBellsMode = this.value
-        })
-        modeSelector.val(takeBellsMode);
-        interface.append(modeSelector);
-        interface.append($("<br>"))
 
         let ringModeSelector = $("<select>");
         ringModeSelector.append($("<option>").attr("value", c.RING_STEADY).html("Ring Steady"));
@@ -86,7 +79,12 @@ let simulatorInterface = (function () {
         })
         interface.append(rowInput);
 
-        let exitButton = $("<button>").html("X").attr("class", "exit-button").on("click", function () { interface.hide(); })
+        let exitButton = $("<button>").html("X").attr("class", "exit-button").on("click", function () { 
+            interface.hide();
+            if(stopCallback) {
+                stopCallback();
+            } 
+        })
         interface.append(exitButton);
 
         return interface
@@ -102,10 +100,11 @@ let simulatorInterface = (function () {
 
     return {
         buildInterface:buildInterface,
+        isActive:isActive,
         setPlaceNotationChangeCallback:(callback) => placeNotationCallback = callback,
+        setStopCallback:(callback) => stopCallback = callback,
         setNotationValid:setNotationValid,
         getRingMode:()=>ringMode,
-        getTakeBellsMode:()=>takeBellsMode,
         getPeelSpeed:()=>peelSpeedInHours,
     }
 })();
