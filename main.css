@@ -22,5 +22,9 @@
 }
 
 .valid {
-  background-color: green;
+  background-color: lightgreen;
+}
+
+.invalid {
+  background-color: lightcoral;
 }

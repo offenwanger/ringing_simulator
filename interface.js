@@ -89,6 +89,15 @@ let simulatorInterface = (function () {
             }
         })
         interface.append(rowInput);
+        interface.append($("<br>"));
+        interface.append($("<br>"));
+
+        interface.append($("<strong>").html("Current Row"));
+        interface.append($("<div>").attr("id", "simulator-current-row-display").html("-"));
+        interface.append($("<strong>").html("Next Rows"));
+        interface.append($("<div>").attr("id", "simulator-second-row-display").html("-"));
+        interface.append($("<div>").attr("id", "simulator-third-row-display").html("-"));
+        interface.append($("<div>").attr("id", "simulator-fouth-row-display").html("-"));
 
         let exitButton = $("<button>").html("X").attr("class", "exit-button").on("click", function () { 
             interface.hide();
@@ -99,6 +108,52 @@ let simulatorInterface = (function () {
         interface.append(exitButton);
 
         return interface
+    }
+
+    function setFutureRowsDisplay(secondRow, thirdRow, fourthRow) {
+        replaceRowSpans(secondRow, $("#simulator-second-row-display"));
+        replaceRowSpans(thirdRow, $("#simulator-third-row-display"));
+        replaceRowSpans(fourthRow, $("#simulator-fouth-row-display"));
+    }
+
+    function setCurrentRowDisplay(currentRow, lastRungPlace, stroke, state) {
+        replaceRowSpans(currentRow, $("#simulator-current-row-display"));
+        if(!currentRow || currentRow.length == 0) {
+            return;
+        }
+        
+        for(let i=0;i<currentRow.length;i++) { 
+            let span = $("#simulator-current-row-display").find(".simulator-bell-"+currentRow[i]).first();
+            let hasGone = i < lastRungPlace;
+            let shouldBe = !hasGone ? stroke : (stroke == c.HAND?c.BACK:c.HAND);
+            let bell = currentRow[i];
+            if(state[bell] != shouldBe) {
+                span.removeClass("valid");
+                span.addClass("invalid");
+            } else {
+                span.removeClass("invalid");
+                if(i <= lastRungPlace) span.addClass("valid");
+            }
+        }
+    }
+
+    function replaceRowSpans(row, parent) {
+        parent.empty();
+        if(!row) {
+            parent.append($("<span>").html("-"));
+        } else {
+            for(let i=0;i<row.length;i++) {
+                let bell = row[i]
+                if(row[i] == 10) {
+                    bell = 0;
+                } else if(bell == 11) {
+                    bell = "E"
+                } else if(bell == 12) {
+                    bell = "T"
+                }
+                parent.append($("<span>").addClass("simulator-bell-row-display").addClass("simulator-bell-"+ row[i]).html(bell));
+            }
+        }
     }
 
     function setNotationValid(valid) {
@@ -115,8 +170,11 @@ let simulatorInterface = (function () {
         setPlaceNotationChangeCallback:(callback) => placeNotationCallback = callback,
         setStopCallback:(callback) => stopCallback = callback,
         setNotationValid:setNotationValid,
+        setFutureRowsDisplay:setFutureRowsDisplay,
+        setCurrentRowDisplay:setCurrentRowDisplay,
         getRingMode:()=>ringMode,
         getGoMode:()=>goMode,
         getPeelSpeed:()=>peelSpeedInHours,
+        getCurrentNotation:()=>$("#place-notation-input").val(),
     }
 })();
