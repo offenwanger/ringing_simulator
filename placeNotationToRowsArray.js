@@ -70,6 +70,10 @@ let getRoundsRowArray;
     getRoundsRowArray = rounds;
 
     placeNotationToRowArray = function (placeNotionString, numberOfBells) {
+        if(!placeNotionString) {
+            return { "success": false };
+        }
+
         let rowArray = [rounds(numberOfBells)]
         let fullNotation = []
 
