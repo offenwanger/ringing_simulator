@@ -13,6 +13,8 @@
       "css": ["main.css"],
       "js": [
         "libs/jquery-3.5.1.min.js",
+        "constants.js",
+        "interface.js",
         "placeNotationToRowsArray.js",
         "main.js"
       ],
