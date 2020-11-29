@@ -3,8 +3,8 @@
         ALL_BELLS:1,
         REMAINING_BELLS:2,
     
-        SINGLE_ROW:0,
-        INPUT_PLACE_NOTATION:1,
+        UP_DOWN_GO:0,
+        GO_THATS_ALL:1,
     
         HAND:true,
         BACK:false,

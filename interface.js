@@ -6,6 +6,7 @@ let simulatorInterface = (function () {
     }
 
     let ringMode = c.WAIT_FOR_HUMANS;
+    let goMode = c.UP_DOWN_GO;
 
     let placeNotationCallback;
     let stopCallback;
@@ -50,6 +51,16 @@ let simulatorInterface = (function () {
         })
         ringModeSelector.val(ringMode);
         interface.append(ringModeSelector);
+        interface.append($("<br>"))
+
+        let goModeSelector = $("<select>");
+        goModeSelector.append($("<option>").attr("value", c.UP_DOWN_GO).html("Up, Down, Go"));
+        goModeSelector.append($("<option>").attr("value", c.GO_THATS_ALL).html("Wait for go / that's all"));
+        goModeSelector.on("change", function () {
+            goMode = this.value
+        })
+        goModeSelector.val(goMode);
+        interface.append(goModeSelector);
         interface.append($("<br>"))
         interface.append($("<br>"))
 
@@ -105,6 +116,7 @@ let simulatorInterface = (function () {
         setStopCallback:(callback) => stopCallback = callback,
         setNotationValid:setNotationValid,
         getRingMode:()=>ringMode,
+        getGoMode:()=>goMode,
         getPeelSpeed:()=>peelSpeedInHours,
     }
 })();

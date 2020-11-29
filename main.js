@@ -41,7 +41,6 @@
                 stand = false;
 
                 currentRow = methodRows[0];
-                // starting at 0 will result in the first row being rung twice. 
                 rowNumber = 0
 
                 iAmRinging = getUnassignedBells();
@@ -135,26 +134,43 @@
     }
 
     function nextChange() {
-        if(rowNumber >= methodRows.length) {
-            // remember that the last row is the first row, 
-            // so if just rang the last row, don't ring that row again 
+        // Check previous state and set new state:
+        let goMode = simulatorInterface.getGoMode();
+        
+        if(goMode == c.GO_THATS_ALL && !going) {
+            // if we're following go commands and not going, ring rounds
+            rowNumber = 0; 
+        } else if(rowNumber == 0 && stroke == c.HAND) {
+            // if we just rang row 0 on a hand
+            // do nothing to ring row 0 again because we need to start on a hand stroke
+        } else if(rowNumber == 0 && stroke == c.BACK) {
+            // If we're on row 0, just finished a back, either up_down_go, or have had the go command, off we go
             rowNumber = 1;
+            // Note: this case not strictly nessisary, but makes for easier to follow flow
+        } else if(rowNumber >= methodRows.length) {
+            // if we've reached the end of the method, check what to do:
+            if(goMode == c.GO_THATS_ALL) {
+                // we're still going because that would have been caught above
+                // start at 1 because 0 is rounds again, and we should have just rang that
+                rowNumber = 1;
+            } else if(goMode == c.UP_DOWN_GO) {
+                // do nothing, stay at current row number and just keep ringing it over and over.
+            } else {
+                console.error("impossible state!")
+            }
+        } else {
+            // If we're on row 0, just finished a back, either up_down_go, or have had the go command, off we go
+            rowNumber ++;
         }
 
-        if(!going || (rowNumber == 1 && stroke == c.HAND)) {
-            // if not going, reset to the first row
-            // or if we are going, don't go to the first row until we've just finished a backstroke.
-            rowNumber = 0;
-        } 
-        if(rowNumber < 0 || rowNumber >= methodRows.length) console.error("Impossible state! rowNumber="+rowNumber)
-        currentRow = methodRows[rowNumber];
-        rowNumber++;
-
+        // reverse the stroke 
         if (stroke == c.HAND) {
             stroke = c.BACK;
         } else {
             stroke = c.HAND;
         }
+        
+        currentRow = methodRows[rowNumber];
         changeEnd = Date.now()
         place = 0;
     }
