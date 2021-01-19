@@ -3,11 +3,27 @@
 let placeNotationToRowArray;
 let getRoundsRowArray;
 (function () {
+    function enoughBellsForPlaceNotation(notation, numberOfBells) {
+        let highestNotation = 0;
+
+        for (var i = 0; i < notation.length; i++) {
+            try {
+                let num = notationToArrayIndex(notation.charAt(i))
+                if(num > highestNotation) {
+                    highestNotation = num;
+                }
+            } catch {}
+        }
+
+        // If the highest notation (say T) is less than the number of bells (say 12), return true. 
+        return highestNotation <= numberOfBells;
+    }
+
     function generateNextRow(previousRow, notation) {
         let nextRow = []
         if (notation == "-") {
             if (previousRow.length % 2 != 0) {
-                console.error("Invalid change: " + notation);
+                throw ("Invalid change: " + notation);
             }
             for (let i = 0; i < previousRow.length; i += 2) {
                 nextRow.push(previousRow[i + 1])
@@ -22,7 +38,7 @@ let getRoundsRowArray;
                     nextRow.push(previousRow[i])
                 } else {
                     if (notationArray.includes(i + 2)) {
-                        console.error("Notation error: " + notation);
+                        throw ("Notation error: " + notation);
                     } else {
                         // reverse i and i + 1
                         // This will not cause a arrayOutOfBounds because this can't be the last item in the array
@@ -48,7 +64,7 @@ let getRoundsRowArray;
                 } else if (notation[i] == "T") {
                     result.push(12);
                 } else {
-                    console.error("Invalid place notation: " + notation[i])
+                    throw ("Invalid place notation: " + notation[i])
                 }
             } else if (num == 0) {
                 result.push(10);
@@ -67,11 +83,14 @@ let getRoundsRowArray;
         }
         return rowArr;
     }
-    getRoundsRowArray = rounds;
 
-    placeNotationToRowArray = function (placeNotionString, numberOfBells) {
+    function convertPlaceNotationToRowArray(placeNotionString, numberOfBells) {
         if(!placeNotionString) {
-            return { "success": false };
+            return { "success": false, "error": "No notation" };
+        }
+
+        if(!enoughBellsForPlaceNotation(placeNotionString, numberOfBells)) {
+            return { "success": false, "error": "Too few bells for this method" };
         }
 
         let rowArray = [rounds(numberOfBells)]
@@ -117,7 +136,12 @@ let getRoundsRowArray;
         do {
             for (let i = 0; i < fullNotation.length; i++) {
                 let previousRow = rowArray[rowArray.length - 1]
-                let nextRow = generateNextRow(previousRow, fullNotation[i]);
+                let nextRow 
+                try {
+                    nextRow = generateNextRow(previousRow, fullNotation[i]);
+                } catch(err) {
+                    return { "success": false, "error":err };
+                }
                 rowArray.push(nextRow)
             }
 
@@ -130,9 +154,12 @@ let getRoundsRowArray;
         } while (counter < 7000);
     
         if (counter >= 7000) {
-            return { "success": false };
+            return { "success": false, "error":"Does not come round" };
         }
 
         return { "result": rowArray, "success": true };
     }
+    
+    getRoundsRowArray = rounds;
+    placeNotationToRowArray = convertPlaceNotationToRowArray;
 })();

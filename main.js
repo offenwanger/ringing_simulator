@@ -24,6 +24,7 @@
 
     let methodRows = []
     let currentRow = []
+    let lastNotation = "";
 
     let ringLoop;
 
@@ -245,6 +246,27 @@
         simulatorInterface.setFutureRowsDisplay(null, null, null);
     }
 
+    function setCurrentPlaceNotation(currentNotation) {
+        lastNotation = currentNotation;
+        // Set to default
+        let rounds = getRoundsRowArray();
+        methodRows = [rounds, rounds, rounds];
+        clearRowDisplay();
+
+        if(!currentNotation) {
+            simulatorInterface.setNotationValid(false);
+        } else {
+            let result = placeNotationToRowArray(currentNotation, getNumberOfBells());
+            if (!result.success) {
+                simulatorInterface.setNotationValid(false, result.error);
+            } else {
+                simulatorInterface.setNotationValid(true);
+                methodRows = result.result;
+                updateRowDisplay(0, methodRows.length, -1, c.HAND, simulatorInterface.getGoMode(), true);
+            }
+        }
+    }
+
     function getMethodSet() {
         return new Promise((resolve, reject) => {
             $.get("https://raw.githubusercontent.com/offenwanger/ringing_simulator/master/methodSet.json")
@@ -274,19 +296,11 @@
     function idle() {
         setTimeout(()=>{
             if(!ringLoop && simulatorInterface.isActive()) {
+                // If the number of bells has changes, rerun the notation parse.
                 if(methodRows && methodRows[0] && methodRows[0].length != getNumberOfBells()) {
-                    let notation = simulatorInterface.getCurrentNotation();
-                    console.log(notation)
-                    let result = placeNotationToRowArray(notation, getNumberOfBells());
-                    if (result.success) {
-                        simulatorInterface.setNotationValid(true);
-                        methodRows = result.result;
-                    } else {
-                        simulatorInterface.setNotationValid(false);
-                        clearRowDisplay();
-                    }
+                    log("Number of bells has changed, updating the method rows");
+                    setCurrentPlaceNotation(lastNotation)
                 }
-                updateRowDisplay(0, methodRows.length, -1, c.HAND, simulatorInterface.getGoMode(), true);
             }
             idle();
         }, 2000);
@@ -296,23 +310,7 @@
         console.log(typeof methodSet, methodSet)
         window.addEventListener('keydown', onKeyDown);
         simulatorInterface.buildInterface(methodSet);
-        simulatorInterface.setPlaceNotationChangeCallback((currentNotation) => {
-            if(!currentNotation) {
-                simulatorInterface.setNotationValid(false);
-            } else {
-                let result = placeNotationToRowArray(currentNotation, getNumberOfBells());
-                if (result.success) {
-                    simulatorInterface.setNotationValid(true);
-                    methodRows = result.result;
-                    updateRowDisplay(0, methodRows.length, -1, c.HAND, simulatorInterface.getGoMode(), true);
-                } else {
-                    simulatorInterface.setNotationValid(false, "Notion invalid");
-                    let rounds = getRoundsRowArray();
-                    methodRows = [rounds, rounds, rounds];
-                    updateRowDisplay();
-                }
-            }
-        });
+        simulatorInterface.setPlaceNotationChangeCallback(setCurrentPlaceNotation);
 
         simulatorInterface.setStopCallback(() => {
             stand = true;

@@ -229,7 +229,6 @@ let simulatorInterface = (function () {
         setCurrentRowDisplay:setCurrentRowDisplay,
         getRingMode:()=>ringMode,
         getGoMode:()=>goMode,
-        getPeelSpeed:()=>peelSpeedInHours,
-        getCurrentNotation:()=>$("#place-notation-input").val(),
+        getPeelSpeed:()=>peelSpeedInHours
     }
 })();
