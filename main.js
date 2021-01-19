@@ -245,27 +245,31 @@
         simulatorInterface.setFutureRowsDisplay(null, null, null);
     }
 
-    window.addEventListener('keydown', onKeyDown);
-    simulatorInterface.buildInterface();
-    simulatorInterface.setPlaceNotationChangeCallback((currentNotation) => {
-        let result = placeNotationToRowArray(currentNotation, getNumberOfBells());
-        if (result.success) {
-            simulatorInterface.setNotationValid(true);
-            methodRows = result.result;
-            updateRowDisplay(0, methodRows.length, -1, c.HAND, simulatorInterface.getGoMode(), true);
-        } else {
-            simulatorInterface.setNotationValid(false);
-            let rounds = getRoundsRowArray();
-            methodRows = [rounds, rounds, rounds];
-            updateRowDisplay();
-        }
-    });
-
-    simulatorInterface.setStopCallback(() => {
-        stand = true;
-        clearTimeout(ringLoop);
-        ringLoop = null;
-    });
+    function getMethodSet() {
+        return new Promise((resolve, reject) => {
+            $.get("https://raw.githubusercontent.com/offenwanger/ringing_simulator/master/methodSet.json")
+            .done((data) => {
+                try {
+                    let methodSet = $.parseJSON(data);
+                    if(Array.isArray(methodSet) && typeof methodSet[0].name == "string" && typeof methodSet[0].placeNotation == "string") {
+                        console.log("Simulator method set obtained, formatting appears to be good.");
+                        resolve(methodSet);
+                    } else {
+                        console.error("Simulator method set obtained, but did not pass validation! Not using.")
+                        console.log(data);
+                        resolve([]);
+                    }
+                } catch (err) {
+                    console.error("Simulator method set obtained, but did not parse! Not using.")
+                    console.log(err, data);
+                    resolve([]);
+                }
+            }).fail(() => {
+                console.error("Failed to load remote method set!");
+                resolve([]);
+            });
+        });
+    }
 
     function idle() {
         setTimeout(()=>{
@@ -286,5 +290,36 @@
             }
             idle();
         }, 2000);
-    }; idle();
+    }; 
+
+    getMethodSet().then((methodSet) => {
+        console.log(typeof methodSet, methodSet)
+        window.addEventListener('keydown', onKeyDown);
+        simulatorInterface.buildInterface(methodSet);
+        simulatorInterface.setPlaceNotationChangeCallback((currentNotation) => {
+            if(!currentNotation) {
+                simulatorInterface.setNotationValid(false);
+            } else {
+                let result = placeNotationToRowArray(currentNotation, getNumberOfBells());
+                if (result.success) {
+                    simulatorInterface.setNotationValid(true);
+                    methodRows = result.result;
+                    updateRowDisplay(0, methodRows.length, -1, c.HAND, simulatorInterface.getGoMode(), true);
+                } else {
+                    simulatorInterface.setNotationValid(false, "Notion invalid");
+                    let rounds = getRoundsRowArray();
+                    methodRows = [rounds, rounds, rounds];
+                    updateRowDisplay();
+                }
+            }
+        });
+
+        simulatorInterface.setStopCallback(() => {
+            stand = true;
+            clearTimeout(ringLoop);
+            ringLoop = null;
+        });
+
+        idle();
+    })
 })();

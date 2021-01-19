@@ -13,9 +13,9 @@ let simulatorInterface = (function () {
 
     let peelSpeedInHours = 4;
     
-    function buildInterface() {
+    function buildInterface(methodSet) {
         let FAB = createFAB();
-        let interface = createInterface(FAB);
+        let interface = createInterface(FAB, methodSet);
     
         $("body").append(FAB)
         $("body").append(interface)
@@ -32,7 +32,7 @@ let simulatorInterface = (function () {
         return $("#simulator-toggle").hasClass("simulator-active");
     }
 
-    function createInterface(openToggle) {
+    function createInterface(openToggle, methodSet) {
         let interface = $("<div>").attr("class", "dialog").attr("id","simulator-interface").css("z-index", 6);
 
         let header = $("<h3>").html("Ringing Simulator");
@@ -74,17 +74,55 @@ let simulatorInterface = (function () {
         interface.append($("<br>"))
         interface.append($("<br>"))
 
-        let rowInput = $("<input>")
+        let methodSelect = $("<select>").css("width", "170px");
+        methodSelect.append($("<option>").attr("value", "select").html("&lt;select method&gt;"));
+        methodSet.forEach(method => {
+            methodSelect.append($("<option>").attr("value", method.placeNotation).html(method.name));
+        });
+        methodSelect.append($("<option>").attr("value", "input").html("&lt;input place notation&gt;"));
+        interface.append(methodSelect)
+
+        let placeNotationInput = $("<div>");
+        
+        let placeNotationTextInput = $("<input>")
             .attr("type", "text")
             .attr("id","place-notation-input")
-            .attr("placeholder","place notation");
-        rowInput.on("change", function () {
+            .attr("placeholder","place notation")
+            .attr("width", "75px");
+        placeNotationInput.append(placeNotationTextInput);
+
+        let placeNotationDoneButton = $("<button>").html("Done").on("click", function () { 
             if(placeNotationCallback) {
-                placeNotationCallback(this.value);
+                placeNotationCallback(placeNotationTextInput.val());
             }
-        })
-        interface.append(rowInput);
+        });
+        placeNotationInput.append(placeNotationDoneButton);
+
+        interface.append(placeNotationInput);
+        placeNotationInput.hide();
+
+        methodSelect.on("change", function () {
+            placeNotationInput.hide();
+            placeNotationTextInput.val("");
+            $("#simulator-place-notation-status").hide();
+            
+            let newPlaceNotation = this.value;
+            if(newPlaceNotation == "select") {
+                placeNotationCallback("");
+            } else if(newPlaceNotation == "input") {
+                placeNotationInput.show();
+                placeNotationCallback("");
+            } else {
+                placeNotationCallback(newPlaceNotation);
+            }
+        });
+
         interface.append($("<br>"));
+
+        let statusMessage = $("<div>").attr("id", "simulator-place-notation-status");
+        interface.append(statusMessage);
+        statusMessage.hide();
+
         interface.append($("<br>"));
 
         interface.append($("<strong>").html("Current Row"));
@@ -169,11 +207,15 @@ let simulatorInterface = (function () {
         }
     }
 
-    function setNotationValid(valid) {
-        if(valid) {
-            $("#place-notation-input").addClass("valid")
+    function setNotationValid(valid, error) {
+        if(valid) { 
+            $("#simulator-place-notation-status").html("Ready");
+            $("#simulator-place-notation-status").show();
+        } else if(error) {
+            $("#simulator-place-notation-status").html("Error: " + error);
+            $("#simulator-place-notation-status").show();
         } else {
-            $("#place-notation-input").removeClass("valid")
+            $("#simulator-place-notation-status").hide();
         }
     }
 

@@ -25,14 +25,6 @@
   width: 100%;
 }
 
-.valid {
-  background-color: lightgreen;
-}
-
-.invalid {
-  background-color: lightcoral;
-}
-
 .simulator-active {
   animation: swing ease-in-out 2s infinite alternate;
 }
