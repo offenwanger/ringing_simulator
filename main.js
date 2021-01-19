@@ -231,6 +231,12 @@
         return state;
     }
 
+    function stopSimulator() {
+        stand = true;
+        clearTimeout(ringLoop);
+        ringLoop = null;
+    }
+
     function updateRowDisplay(rowNumber, methodLength, lastRangPlace, currStroke, currGoMode, isGoing) {
         let currRow = methodRows[rowNumber];
         simulatorInterface.setCurrentRowDisplay(currRow, lastRangPlace, currStroke, getState());
@@ -247,6 +253,10 @@
     }
 
     function setCurrentPlaceNotation(currentNotation) {
+        if(ringLoop) {
+            stopSimulator();
+        }
+
         lastNotation = currentNotation;
         // Set to default
         let rounds = getRoundsRowArray();
@@ -312,11 +322,7 @@
         simulatorInterface.buildInterface(methodSet);
         simulatorInterface.setPlaceNotationChangeCallback(setCurrentPlaceNotation);
 
-        simulatorInterface.setStopCallback(() => {
-            stand = true;
-            clearTimeout(ringLoop);
-            ringLoop = null;
-        });
+        simulatorInterface.setStopCallback(stopSimulator);
 
         idle();
     })
