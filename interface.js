@@ -11,7 +11,7 @@ let simulatorInterface = (function () {
     let placeNotationCallback;
     let stopCallback;
 
-    let peelSpeedInHours = 4;
+    let peelSpeedInHours = 3.5;
     
     function buildInterface(methodSet) {
         let FAB = createFAB();
@@ -61,7 +61,7 @@ let simulatorInterface = (function () {
 
         let peelSpeedHoursInput = $("<input>").attr("type", "number").attr("min", 0).attr("style", "width:40px");
         let peelSpeedMinutesInput = $("<input>").attr("type", "number").attr("min", 0).attr("max", 59).attr("style", "width:75px");
-        peelSpeedHoursInput.val(Math.round(peelSpeedInHours))
+        peelSpeedHoursInput.val(Math.floor(peelSpeedInHours))
         peelSpeedMinutesInput.val(Math.round((peelSpeedInHours * 60) % 60))
         let onPeelSpeechChange = function () { peelSpeedInHours = parseInt(peelSpeedHoursInput.val()) + (parseInt(peelSpeedMinutesInput.val()) / 60); };
         peelSpeedHoursInput.on("change", onPeelSpeechChange)
