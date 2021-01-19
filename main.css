@@ -11,10 +11,14 @@
   font-size: 12pt;
 }
 
-.exit-button {
+.exit-downsize-button-div {
   top: 10px;
   right: 10px;
   position: absolute;
+}
+
+.exit-downsize-button-div button{
+  margin: 2px;
 }
 
 #place-notation-input {
@@ -27,4 +31,13 @@
 
 .invalid {
   background-color: lightcoral;
+}
+
+.simulator-active {
+  animation: swing ease-in-out 2s infinite alternate;
+}
+
+@keyframes swing {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(-270deg); }
 }

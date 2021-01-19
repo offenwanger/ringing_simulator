@@ -15,30 +15,25 @@ let simulatorInterface = (function () {
     
     function buildInterface() {
         let FAB = createFAB();
-        let interface = createInterface();
-    
-        interface.hide();
-        FAB.on("click", function () {
-            interface.show();
-        });
+        let interface = createInterface(FAB);
     
         $("body").append(FAB)
         $("body").append(interface)
     }
 
     function createFAB() {
-        let FAB = $("<div>").attr("style", "position: fixed; bottom: 5%; right: 5%");
+        let FAB = $("<div>").attr("id", "simulator-toggle").css("position", "absolute").css("bottom", "5%").css("right", "5%").css("z-index", 5);
         let image = $("<img>").attr("src", chrome.extension.getURL('icon.svg')).attr("width", "50px").attr("height", "50px");
         FAB.append(image)
         return FAB;
     }
 
     function isActive() {
-        return $("#simulator-interface").is(":visible");
+        return $("#simulator-toggle").hasClass("simulator-active");
     }
 
-    function createInterface() {
-        let interface = $("<div>").attr("class", "dialog").attr("id","simulator-interface");
+    function createInterface(openToggle) {
+        let interface = $("<div>").attr("class", "dialog").attr("id","simulator-interface").css("z-index", 6);
 
         let header = $("<h3>").html("Ringing Simulator");
         interface.append(header);
@@ -99,14 +94,32 @@ let simulatorInterface = (function () {
         interface.append($("<div>").attr("id", "simulator-third-row-display").html("-"));
         interface.append($("<div>").attr("id", "simulator-fouth-row-display").html("-"));
 
-        let exitButton = $("<button>").html("X").attr("class", "exit-button").on("click", function () { 
+        openToggle.on("click", function () {
+            interface.show();
+            // If the simulator was downsized, this will call again, but that's fine since it
+            // doesn't double add.
+            openToggle.addClass("simulator-active");
+        });
+
+        let topButtonDiv = $("<div>").attr("class", "exit-downsize-button-div");
+
+        let downsizeButton = $("<button>").html("-").on("click", function () { 
+            interface.hide();
+        })
+        topButtonDiv.append(downsizeButton);
+
+        let exitButton = $("<button>").html("X").on("click", function () { 
+            openToggle.removeClass("simulator-active");
             interface.hide();
             if(stopCallback) {
                 stopCallback();
             } 
         })
-        interface.append(exitButton);
+        topButtonDiv.append(exitButton);    
 
+        interface.append(topButtonDiv);
+
+        interface.hide();
         return interface
     }
 
