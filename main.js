@@ -220,6 +220,11 @@
         return $(".bell_img").length;
     }
 
+    function inTower() {
+        // Best way of telling right now. Need to get a better way. 
+        return getNumberOfBells() > 0;
+    }
+
     function getState() {
         state = []
         $(".bell").each(function (index, bell) {
@@ -319,10 +324,12 @@
     getMethodSet().then((methodSet) => {
         console.log(typeof methodSet, methodSet)
         window.addEventListener('keydown', onKeyDown);
-        simulatorInterface.buildInterface(methodSet);
-        simulatorInterface.setPlaceNotationChangeCallback(setCurrentPlaceNotation);
-
-        simulatorInterface.setStopCallback(stopSimulator);
+        if(inTower()) {
+            simulatorInterface.buildInterface(methodSet);
+            simulatorInterface.setPlaceNotationChangeCallback(setCurrentPlaceNotation);
+    
+            simulatorInterface.setStopCallback(stopSimulator);
+        }
 
         idle();
     })
