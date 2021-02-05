@@ -3,12 +3,39 @@
   background-color: #fefefe;
   padding: 20px;
   border: 1px solid #888;
-  width: 200px;
+  width: 210px;
   border-radius: 5px;    
   position: absolute;
   bottom: 0%;
   right: 0%;
   font-size: 12pt;
+}
+
+/* Dialog container and background */
+.overlay-popup {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  padding-left: 15%;
+  padding-right: 15%;
+  padding-top: 5%;
+  padding-bottom: 5%;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+/* Dialog content */
+.overlay-popup-content {
+  background-color: #fefefe;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+  height: 80%;
+  overflow-y: scroll;
+  border-radius: 5px;
 }
 
 .exit-downsize-button-div {

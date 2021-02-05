@@ -15,9 +15,11 @@ let simulatorInterface = (function () {
     
     function buildInterface(methodSet) {
         let FAB = createFAB();
-        let interface = createInterface(FAB, methodSet);
+        let helpMenu = createHelpMenu();
+        let interface = createInterface(FAB, methodSet, helpMenu);
     
         $("body").append(FAB)
+        $("body").append(helpMenu)
         $("body").append(interface)
     }
 
@@ -32,7 +34,99 @@ let simulatorInterface = (function () {
         return $("#simulator-toggle").hasClass("simulator-active");
     }
 
-    function createInterface(openToggle, methodSet) {
+    function createHelpMenu() {
+        let menu = $("<div>")
+            .addClass("overlay-popup")
+            .on("click", function(e) {
+                if(e.target == this) {
+                    menu.hide();
+                }
+            });
+        
+        let content = $("<div>")
+            .addClass("overlay-popup-content");
+        menu.append(content); 
+
+        let header = $("<h3>")
+            .html("Ringing Simulator Overview")
+            .css("float", "left");
+        content.append(header);
+
+        let exitButton = $("<button>")
+            .html("X")
+            .css("float", "right")
+            .on("click", function () { 
+                menu.hide();
+            });
+        content.append(exitButton); 
+        
+        content.append($("<br>"));
+        content.append($("<br>"));
+
+        content.append($("<div>").html(`Thank you for using this Ringing Simulator! This overview outlines all the main functionality of the simulator.`));
+        content.append($("<br>"));
+
+        content.append($("<h4>").html("Controlling  the Simulator"));
+        content.append($("<div>").html(`When the simulator panel is open, the simulator is active. Clicking the 'X' in the top right corner will 
+            turn off the simulator. Clicking the '-' in the top right corner will close the panel, but leave the simulator active. When the simulator is active, it will 
+            listen to commands <strong>from the person who has it installed</strong>. If two people have the simulator installed, each simulator will only listen to "Look To" 
+            commands from the person who has it installed, not any of the other ringers. 
+            If the simulator has a method set and is ready to ring, the simulator will ring all unassigned bells when the person who has it installed gives the 
+            "Look to" command ('L' button), and stop when the "Stand" command is given ("T" button). See below for more information on setting a method.`));
+        content.append($("<br>"));
+
+        content.append($("<h4>").html("Simulator Settings"));
+        content.append($("<h5>").html("Pacing"));
+        content.append($("<div>").html(`The options for simulator pacing are "Wait for Other Bells" and "Ring Steady". 
+        <br>    
+        When set for "Wait for Other Bells" the simulator will hold up over other bells indefinitely. 
+        <br>
+        When set for "Ring Steady" the simulator will ignore the other ringers and ring steadily at the set peel speed.`));
+        content.append($("<br>"));
+
+        content.append($("<h5>").html("'Look To'/'Go' Behavior"));
+        content.append($("<div>").html(`The simulator has two different modes when it comes to start and stop commands, "Up, Down, Go" and "Wait for go / That's all". 
+            <br>
+            In "Up, Down, Go" mode, the simulator will wait for the "Look To" command, ring up and down in rounds then start off into the selected method, 
+            and return to rounds at the end of the method, ringing until "Stand" is called.
+            <br>
+            In "Wait for go / That's all" mode, the simulator will wait for the "Look To" command, and will ring in rounds until the "Go" command, then it will ring the 
+            method until "That's All" or "Stand" is called.
+            The simulator does not yet handle Bob and Single commands.`));
+        content.append($("<br>"));
+            
+        content.append($("<h5>").html("Peel Speed"));
+        content.append($("<div>").html(`The peel speed is set in hours and minutes. Peel speed cannot be less than 1 hour.`));
+        content.append($("<br>"));
+
+        content.append($("<h4>").html("Select Method"));
+        content.append($("<div>").html(`The simulator comes with a selection of methods available in a dropdown menu. Clicking on the drop down and clicking on the desired method 
+            will set the method, and the first couple lines of the method should appear in the preview. The simulator should indicate that it is ready to ring.
+            <br>
+            If the method you want to ring is not in the menu, it can be entered via place notation by selecting the last option in the menu, &lt;input place notation&gt;. Place notation for most methods can be found by searching 
+            <a href="http://methods.ringing.org/ target="_blank"">http://methods.ringing.org/</a>.`));
+        content.append($("<br>"));
+
+            
+        content.append($("<h4>").html("Method Rows Preview"));
+        content.append($("<div>").html(`The simulator contains a preview of the first few rows that it will ring. If the simulator appears to be messing up, this can
+            be helpful to figure out what is going wrong. It's always possible that the method notation was entered incorrectly! If you find a problem, please email 
+            dev@offenwanger.ca to explain where you found the issue and I will try to fix it when I have time.`));
+        content.append($("<br>"));
+
+ 
+        content.append($("<h4>").html("About this Simulator"));
+        content.append($("<div>").html(`This simulator was developed by Anna Offenwanger for the use of the Vancouver Society of Change Ringers 
+            (<a href="http://vscr.ca/" target="_blank">http://vscr.ca/</a>). 
+            The Chrome extension and code are freely available under the MIT license. 
+            To review the code or the license, please see 
+            <a href="https://github.com/offenwanger/ringing_simulator/" target="_blank">https://github.com/offenwanger/ringing_simulator/</a>. 
+            If you have any questions or comments about the simulator, please email dev@offenwanger.ca`));
+
+        return menu;
+    }
+
+    function createInterface(openToggle, methodSet, helpMenu) {
         let interface = $("<div>").attr("class", "dialog").attr("id","simulator-interface").css("z-index", 6);
 
         let header = $("<h3>").html("Ringing Simulator");
@@ -50,7 +144,7 @@ let simulatorInterface = (function () {
 
         let goModeSelector = $("<select>");
         goModeSelector.append($("<option>").attr("value", c.UP_DOWN_GO).html("Up, down, go"));
-        goModeSelector.append($("<option>").attr("value", c.FOLLOW_COMMANDS).html("Wait for go / that's all"));
+        goModeSelector.append($("<option>").attr("value", c.FOLLOW_COMMANDS).html("Wait for go / That's all"));
         goModeSelector.on("change", function () {
             goMode = this.value
         })
@@ -164,6 +258,11 @@ let simulatorInterface = (function () {
         });
 
         let topButtonDiv = $("<div>").attr("class", "exit-downsize-button-div");
+        
+        let helpButton = $("<button>").html("?").on("click", function () { 
+            helpMenu.show();
+        })
+        topButtonDiv.append(helpButton);
 
         let downsizeButton = $("<button>").html("-").on("click", function () { 
             interface.hide();
