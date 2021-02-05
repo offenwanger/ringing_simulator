@@ -59,18 +59,29 @@ let simulatorInterface = (function () {
         interface.append($("<br>"))
         interface.append($("<br>"))
 
-        let peelSpeedHoursInput = $("<input>").attr("type", "number").attr("min", 0).attr("style", "width:40px");
-        let peelSpeedMinutesInput = $("<input>").attr("type", "number").attr("min", 0).attr("max", 59).attr("style", "width:75px");
+        let peelSpeedHoursInput = $("<input>").attr("type", "number").attr("min", 1).attr("style", "width:50px");
+        let peelSpeedMinutesInput = $("<input>").attr("type", "number").attr("min", -1).attr("max", 60).attr("style", "width:50px");
         peelSpeedHoursInput.val(Math.floor(peelSpeedInHours))
         peelSpeedMinutesInput.val(Math.round((peelSpeedInHours * 60) % 60))
         let onPeelSpeechChange = function () { peelSpeedInHours = parseInt(peelSpeedHoursInput.val()) + (parseInt(peelSpeedMinutesInput.val()) / 60); };
         peelSpeedHoursInput.on("change", onPeelSpeechChange)
-        peelSpeedMinutesInput.on("change", onPeelSpeechChange)
-        interface.append($("<span>").html("Peel Speed "));
+        peelSpeedMinutesInput.on('input', function() {
+            if(peelSpeedMinutesInput.val() < 0) {
+                peelSpeedMinutesInput.val(59)
+            } else if (peelSpeedMinutesInput.val() > 59) {
+                peelSpeedMinutesInput.val(0)
+            }
+            
+            onPeelSpeechChange();
+        });
+    
+        interface.append($("<span>").html("Peel Speed"));
+        interface.append($("<br>"));
+        interface.append($("<span>").html("Hours: "));
         interface.append(peelSpeedHoursInput);
-        interface.append($("<span>").html(" hours "));
+        interface.append($("<br>"))
+        interface.append($("<span>").html("Minutes: "));
         interface.append(peelSpeedMinutesInput);
-        interface.append($("<span>").html(" minutes."));
         interface.append($("<br>"))
         interface.append($("<br>"))
 
