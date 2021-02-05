@@ -63,7 +63,20 @@ let simulatorInterface = (function () {
         let peelSpeedMinutesInput = $("<input>").attr("type", "number").attr("min", -1).attr("max", 60).attr("style", "width:50px");
         peelSpeedHoursInput.val(Math.floor(peelSpeedInHours))
         peelSpeedMinutesInput.val(Math.round((peelSpeedInHours * 60) % 60))
-        let onPeelSpeechChange = function () { peelSpeedInHours = parseInt(peelSpeedHoursInput.val()) + (parseInt(peelSpeedMinutesInput.val()) / 60); };
+        let onPeelSpeechChange = function () { 
+            let hours = parseInt(peelSpeedHoursInput.val());
+            let minutes = parseInt(peelSpeedMinutesInput.val());
+            if(isNaN(hours) || hours == 0) {
+                hours = 1;
+                peelSpeedHoursInput.val(1);
+            }
+            if(isNaN(minutes)) {
+                minutes = 0;
+                peelSpeedMinutesInput.val(0)
+            }
+
+            peelSpeedInHours = hours + (minutes / 60); 
+        };
         peelSpeedHoursInput.on("change", onPeelSpeechChange)
         peelSpeedMinutesInput.on('input', function() {
             if(peelSpeedMinutesInput.val() < 0) {
