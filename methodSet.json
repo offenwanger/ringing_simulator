@@ -13,6 +13,7 @@
     {"name":"Little Bob Major", "placeNotation":"&-18-14,12"},
     {"name":"Oxford Bob Doubles", "placeNotation":"&5.145.5.1.5,125"},
     {"name":"Double Oxford Bob Triples", "placeNotation":"3,&1.5.1.7.3.7.5"},
+    {"name":"Plain Bob Doubles", "placeNotation":"&5.1.5.1.5,125"},
     {"name":"Plain Bob Minor", "placeNotation":"&-16-16-16,12"},
     {"name":"Plain Bob Major", "placeNotation":"&-18-18-18-18,12"},
     {"name":"Primrose Surprise Minor", "placeNotation":"&-36-14-12-36-14-56,16"},
