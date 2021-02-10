@@ -56,7 +56,7 @@
                 ringLoop = setTimeout(function () {
                     changeEnd = Date.now();
                     ringNext()
-                }, 2000);
+                }, 2800);
             } 
         }
 
