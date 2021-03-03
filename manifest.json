@@ -18,10 +18,8 @@
         "main.js"
       ],
       "matches": [
-        "http://na.ringingroom.com/*",
-        "https://na.ringingroom.com/*",
-        "http://ringingroom.com/*",
-        "https://ringingroom.com/*"
+        "http://*.ringingroom.com/*",
+        "https://*.ringingroom.com/*"
       ]
     }
   ],
