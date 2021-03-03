@@ -193,6 +193,9 @@ let simulatorInterface = (function () {
         interface.append($("<br>"))
 
         let methodSelect = $("<select>").css("width", "170px");
+        // Note: This will make this unusuable without a mouse. This can be fixed,
+        // but it's somewhat complecated. 
+        methodSelect.on("focus",function() {methodSelect.blur()});
         methodSelect.append($("<option>").attr("value", "select").html("&lt;select method&gt;"));
         methodSet.forEach(method => {
             methodSelect.append($("<option>").attr("value", method.placeNotation).html(method.name));
