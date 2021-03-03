@@ -75,6 +75,12 @@ let simulatorInterface = (function () {
             "Look to" command ('L' button), and stop when the "Stand" command is given ("T" button). See below for more information on setting a method.`));
         content.append($("<br>"));
 
+        content.append($("<div>").html(`Please Note: The simulator cannot ring in Host Mode. If you have Host Mode enabled in the tower, ensure that it is set to off.
+            (If you don't know what Host Mode is, then it's probably already off)`));
+        
+        content.append($("<br>"));
+        
+
         content.append($("<h4>").html("Simulator Settings"));
         content.append($("<h5>").html("Pacing"));
         content.append($("<div>").html(`The options for simulator pacing are "Wait for Other Bells" and "Ring Steady". 
