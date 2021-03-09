@@ -220,7 +220,8 @@ let simulatorInterface = (function () {
 
         let placeNotationDoneButton = $("<button>").html("Done").on("click", function () { 
             if(placeNotationCallback) {
-                placeNotationCallback(placeNotationTextInput.val().trim());
+                placeNotationTextInput.val(placeNotationTextInput.val().replace(/\s/g, ""));
+                placeNotationCallback(placeNotationTextInput.val());
             }
         });
         placeNotationInput.append(placeNotationDoneButton);
