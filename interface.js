@@ -11,7 +11,7 @@ let simulatorInterface = (function () {
     let placeNotationCallback;
     let stopCallback;
 
-    let peelSpeedInHours = 3.5;
+    let pealSpeedInHours = 3.5;
     
     function buildInterface(methodSet) {
         let FAB = createFAB();
@@ -87,7 +87,7 @@ let simulatorInterface = (function () {
         <br>    
         When set for "Wait for Other Bells" the simulator will hold up over other bells indefinitely. 
         <br>
-        When set for "Ring Steady" the simulator will ignore the other ringers and ring steadily at the set peel speed.`));
+        When set for "Ring Steady" the simulator will ignore the other ringers and ring steadily at the set peal speed.`));
         content.append($("<br>"));
 
         content.append($("<h5>").html("'Look To'/'Go' Behavior"));
@@ -101,8 +101,8 @@ let simulatorInterface = (function () {
             The simulator does not yet handle Bob and Single commands.`));
         content.append($("<br>"));
             
-        content.append($("<h5>").html("Peel Speed"));
-        content.append($("<div>").html(`The peel speed is set in hours and minutes. Peel speed cannot be less than 1 hour.`));
+        content.append($("<h5>").html("Peal Speed"));
+        content.append($("<div>").html(`The peal speed is set in hours and minutes. Peal speed cannot be less than 1 hour.`));
         content.append($("<br>"));
 
         content.append($("<h4>").html("Select Method"));
@@ -159,42 +159,42 @@ let simulatorInterface = (function () {
         interface.append($("<br>"))
         interface.append($("<br>"))
 
-        let peelSpeedHoursInput = $("<input>").attr("type", "number").attr("min", 1).attr("style", "width:50px");
-        let peelSpeedMinutesInput = $("<input>").attr("type", "number").attr("min", -1).attr("max", 60).attr("style", "width:50px");
-        peelSpeedHoursInput.val(Math.floor(peelSpeedInHours))
-        peelSpeedMinutesInput.val(Math.round((peelSpeedInHours * 60) % 60))
-        let onPeelSpeechChange = function () { 
-            let hours = parseInt(peelSpeedHoursInput.val());
-            let minutes = parseInt(peelSpeedMinutesInput.val());
+        let pealSpeedHoursInput = $("<input>").attr("type", "number").attr("min", 1).attr("style", "width:50px");
+        let pealSpeedMinutesInput = $("<input>").attr("type", "number").attr("min", -1).attr("max", 60).attr("style", "width:50px");
+        pealSpeedHoursInput.val(Math.floor(pealSpeedInHours))
+        pealSpeedMinutesInput.val(Math.round((pealSpeedInHours * 60) % 60))
+        let onPealSpeechChange = function () { 
+            let hours = parseInt(pealSpeedHoursInput.val());
+            let minutes = parseInt(pealSpeedMinutesInput.val());
             if(isNaN(hours) || hours == 0) {
                 hours = 1;
-                peelSpeedHoursInput.val(1);
+                pealSpeedHoursInput.val(1);
             }
             if(isNaN(minutes)) {
                 minutes = 0;
-                peelSpeedMinutesInput.val(0)
+                pealSpeedMinutesInput.val(0)
             }
 
-            peelSpeedInHours = hours + (minutes / 60); 
+            pealSpeedInHours = hours + (minutes / 60); 
         };
-        peelSpeedHoursInput.on("change", onPeelSpeechChange)
-        peelSpeedMinutesInput.on('input', function() {
-            if(peelSpeedMinutesInput.val() < 0) {
-                peelSpeedMinutesInput.val(59)
-            } else if (peelSpeedMinutesInput.val() > 59) {
-                peelSpeedMinutesInput.val(0)
+        pealSpeedHoursInput.on("change", onPealSpeechChange)
+        pealSpeedMinutesInput.on('input', function() {
+            if(pealSpeedMinutesInput.val() < 0) {
+                pealSpeedMinutesInput.val(59)
+            } else if (pealSpeedMinutesInput.val() > 59) {
+                pealSpeedMinutesInput.val(0)
             }
             
-            onPeelSpeechChange();
+            onPealSpeechChange();
         });
     
-        interface.append($("<span>").html("Peel Speed"));
+        interface.append($("<span>").html("Peal Speed"));
         interface.append($("<br>"));
         interface.append($("<span>").html("Hours: "));
-        interface.append(peelSpeedHoursInput);
+        interface.append(pealSpeedHoursInput);
         interface.append($("<br>"))
         interface.append($("<span>").html("Minutes: "));
-        interface.append(peelSpeedMinutesInput);
+        interface.append(pealSpeedMinutesInput);
         interface.append($("<br>"))
         interface.append($("<br>"))
 
@@ -361,6 +361,6 @@ let simulatorInterface = (function () {
         setCurrentRowDisplay:setCurrentRowDisplay,
         getRingMode:()=>ringMode,
         getGoMode:()=>goMode,
-        getPeelSpeed:()=>peelSpeedInHours
+        getPealSpeed:()=>pealSpeedInHours
     }
 })();

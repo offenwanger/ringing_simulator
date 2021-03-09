@@ -36,7 +36,7 @@
 
                 // Take my bells, setup
                 numberOfbells = getNumberOfBells();
-                let changeTime = simulatorInterface.getPeelSpeed() / 5000 /* hours per row */ * 60 /*minutes*/ * 60 /*seconds*/ * 1000 /* miliseconds */;
+                let changeTime = simulatorInterface.getPealSpeed() / 5000 /* hours per row */ * 60 /*minutes*/ * 60 /*seconds*/ * 1000 /* miliseconds */;
                 bellInterval = changeTime / numberOfbells;
                 gracePeriod = bellInterval * 2 / 3
                 stroke = c.HAND;
