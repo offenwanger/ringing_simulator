@@ -110,7 +110,7 @@ let simulatorInterface = (function () {
             will set the method, and the first couple lines of the method should appear in the preview. The simulator should indicate that it is ready to ring.
             <br>
             If the method you want to ring is not in the menu, it can be entered via place notation by selecting the last option in the menu, &lt;input place notation&gt;. Place notation for most methods can be found by searching 
-            <a href="http://methods.ringing.org/ target="_blank"">http://methods.ringing.org/</a>.`));
+            <a href="http://methods.ringing.org/" target="_blank">http://methods.ringing.org/</a>.`));
         content.append($("<br>"));
 
             
@@ -220,7 +220,7 @@ let simulatorInterface = (function () {
 
         let placeNotationDoneButton = $("<button>").html("Done").on("click", function () { 
             if(placeNotationCallback) {
-                placeNotationCallback(placeNotationTextInput.val());
+                placeNotationCallback(placeNotationTextInput.val().trim());
             }
         });
         placeNotationInput.append(placeNotationDoneButton);
