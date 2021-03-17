@@ -11,7 +11,7 @@ let simulatorInterface = (function () {
     let placeNotationCallback;
     let stopCallback;
 
-    let pealSpeedInHours = 3.5;
+    let pealSpeedInHours = 3;
     
     function buildInterface(methodSet) {
         let FAB = createFAB();
@@ -159,8 +159,16 @@ let simulatorInterface = (function () {
         interface.append($("<br>"))
         interface.append($("<br>"))
 
-        let pealSpeedHoursInput = $("<input>").attr("type", "number").attr("min", 1).attr("style", "width:50px");
-        let pealSpeedMinutesInput = $("<input>").attr("type", "number").attr("min", -1).attr("max", 60).attr("style", "width:50px");
+        let pealSpeedHoursInput = $("<input>")
+            .attr("type", "number")
+            .attr("min", 1)
+            .attr("style", "width:50px");
+        let pealSpeedMinutesInput = $("<input>")
+            .attr("type", "number")
+            .attr("min", -5)
+            .attr("max", 60)
+            .attr("style", "width:50px")
+            .attr("step", 5);
         pealSpeedHoursInput.val(Math.floor(pealSpeedInHours))
         pealSpeedMinutesInput.val(Math.round((pealSpeedInHours * 60) % 60))
         let onPealSpeechChange = function () { 
@@ -180,8 +188,8 @@ let simulatorInterface = (function () {
         pealSpeedHoursInput.on("change", onPealSpeechChange)
         pealSpeedMinutesInput.on('input', function() {
             if(pealSpeedMinutesInput.val() < 0) {
-                pealSpeedMinutesInput.val(59)
-            } else if (pealSpeedMinutesInput.val() > 59) {
+                pealSpeedMinutesInput.val(55)
+            } else if (pealSpeedMinutesInput.val() > 55) {
                 pealSpeedMinutesInput.val(0)
             }
             
