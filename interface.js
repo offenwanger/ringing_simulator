@@ -21,6 +21,8 @@ let simulatorInterface = (function () {
         $("body").append(FAB)
         $("body").append(helpMenu)
         $("body").append(interface)
+        
+        $("body").append($("<span>").attr("id", "hacky_thing_to_get_around_extension_context_issues"));
     }
 
     function createFAB() {

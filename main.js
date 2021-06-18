@@ -82,11 +82,12 @@
         } else if (number == 12) {
             key = "="
         }
-        window.dispatchEvent(new KeyboardEvent('keydown', { 'key': "" + key }));
-        log("pressed " + number)
 
-        window.dispatchEvent(new KeyboardEvent('keyup', { 'key': "" + key }));
-        log("released " + number)
+        let carrier = $('<span>').attr("onclick", 'Mousetrap.trigger("'+key+'")');
+        $("#hacky_thing_to_get_around_extension_context_issues").empty();
+        $("#hacky_thing_to_get_around_extension_context_issues").append(carrier);
+        carrier.click();
+        console.log("Simulator ringing "+number);
     }
 
     function ringNext() {
